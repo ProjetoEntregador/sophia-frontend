@@ -1,4 +1,5 @@
 "use client";
+import { ConfirmDeleteModal } from "@/components/ConfirmDeleteModal";
 import { Table } from "@/components/Table";
 import { useTable } from "@/hooks/useTable";
 import { PharmacyMembership } from "@/types/pharmacy";
@@ -114,42 +115,63 @@ export default function PharmacyUsersPage() {
 }
 
 function Item({ id, email, role, status, lastAccess }: PharmacyMember) {
-  return (
-    <article
-      key={id}
-      className="rounded-2xl border border-slate-100 px-5 py-5 transition hover:border-slate-200 hover:bg-slate-50/60"
-    >
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <h4 className="text-lg font-semibold text-slate-900">{email}</h4>
-            <span
-              className={[
-                "rounded-full px-3 py-1 text-xs font-semibold",
-                statusStyles[status],
-              ].join(" ")}
-            >
-              {status}
-            </span>
-          </div>
-          <p className="mt-2 text-sm text-slate-600">{lastAccess}</p>
-          <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
-            <div>
-              <dt className="inline font-medium text-slate-600">Role:</dt>{" "}
-              <dd className="inline">{roleLabels[role]}</dd>
-            </div>
-          </dl>
-        </div>
+  const { closeModal, openModal, Modal } = useModal();
 
-        <div className="flex shrink-0 gap-3">
-          <button
-            type="button"
-            className="rounded-full border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50"
-          >
-            Remove
-          </button>
+  const handleConfirmDelete = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    closeModal();
+  };
+
+  return (
+    <>
+      <article
+        key={id}
+        className="rounded-2xl border border-slate-100 px-5 py-5 transition hover:border-slate-200 hover:bg-slate-50/60"
+      >
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
+              <h4 className="text-lg font-semibold text-slate-900">{email}</h4>
+              <span
+                className={[
+                  "rounded-full px-3 py-1 text-xs font-semibold",
+                  statusStyles[status],
+                ].join(" ")}
+              >
+                {status}
+              </span>
+            </div>
+            <p className="mt-2 text-sm text-slate-600">{lastAccess}</p>
+            <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
+              <div>
+                <dt className="inline font-medium text-slate-600">Role:</dt>{" "}
+                <dd className="inline">{roleLabels[role]}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className="flex shrink-0 gap-3">
+            <button
+              type="button"
+              onClick={openModal}
+              className="rounded-full border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50"
+            >
+              Remove
+            </button>
+          </div>
         </div>
-      </div>
-    </article>
+      </article>
+      <Modal closeModal={closeModal}>
+        <ConfirmDeleteModal
+          contextLabel="Pharmacy members"
+          title="Remove user"
+          description={`Remove ${email} from this pharmacy workspace.`}
+          impactMessage="This action removes only the current pharmacy membership and does not delete the user's account or memberships in other pharmacies."
+          confirmLabel="Remove user"
+          onCancel={closeModal}
+          onConfirm={handleConfirmDelete}
+        />
+      </Modal>
+    </>
   );
 }
