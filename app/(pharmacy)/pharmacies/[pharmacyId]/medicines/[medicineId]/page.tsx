@@ -2,8 +2,10 @@
 
 import { Table } from "@/components/Table";
 import { useTable } from "@/hooks/useTable";
-import { Medicine, MedicineBatch, MedicineBatchStatus } from "@/types/medicine";
+import { Medicine, MedicineBatch } from "@/types/medicine";
+import { useModal } from "@/hooks/useModal";
 import { useParams } from "next/navigation";
+import { MedicineBatchForm } from "./medicine-batch-form";
 
 type MedicineOverview = Medicine & {
   description: string;
@@ -18,12 +20,6 @@ const medicineStatusStyles: Record<string, string> = {
   Available: "bg-emerald-50 text-emerald-700",
   Controlled: "bg-amber-50 text-amber-800",
   "Low stock": "bg-rose-50 text-rose-700",
-};
-
-const batchStatusStyles: Record<MedicineBatchStatus, string> = {
-  Ready: "bg-emerald-50 text-emerald-700",
-  "Low stock": "bg-rose-50 text-rose-700",
-  Reserved: "bg-amber-50 text-amber-800",
 };
 
 const medicineCatalog: Record<string, MedicineOverview> = {
@@ -45,28 +41,19 @@ const medicineCatalog: Record<string, MedicineOverview> = {
         id: "batch-pt-2301",
         code: "PT-2301",
         quantity: "160 units",
-        receivedAt: "Received on May 28, 2026",
         expiresAt: "Expires on December 20, 2026",
-        status: "Ready",
-        note: "Main dispensing batch for front counter demand.",
       },
       {
         id: "batch-pt-2304",
         code: "PT-2304",
         quantity: "42 units",
-        receivedAt: "Received on June 8, 2026",
         expiresAt: "Expires on January 15, 2027",
-        status: "Reserved",
-        note: "Separated for upcoming neighborhood vaccination campaign.",
       },
       {
         id: "batch-pt-2219",
         code: "PT-2219",
         quantity: "18 units",
-        receivedAt: "Received on April 11, 2026",
         expiresAt: "Expires on September 2, 2026",
-        status: "Low stock",
-        note: "Older batch prioritized for current dispensing rotation.",
       },
     ],
   },
@@ -88,19 +75,13 @@ const medicineCatalog: Record<string, MedicineOverview> = {
         id: "batch-am-4102",
         code: "AM-4102",
         quantity: "74 units",
-        receivedAt: "Received on June 1, 2026",
         expiresAt: "Expires on February 10, 2027",
-        status: "Ready",
-        note: "Current prescription fulfillment batch.",
       },
       {
         id: "batch-am-4091",
         code: "AM-4091",
         quantity: "12 units",
-        receivedAt: "Received on April 26, 2026",
         expiresAt: "Expires on August 18, 2026",
-        status: "Low stock",
-        note: "Small remainder pending depletion before restock reorder.",
       },
     ],
   },
@@ -122,19 +103,13 @@ const medicineCatalog: Record<string, MedicineOverview> = {
         id: "batch-sb-1180",
         code: "SB-1180",
         quantity: "15 units",
-        receivedAt: "Received on May 21, 2026",
         expiresAt: "Expires on November 30, 2026",
-        status: "Low stock",
-        note: "Last available batch before scheduled reorder intake.",
       },
       {
         id: "batch-sb-1187",
         code: "SB-1187",
         quantity: "24 units",
-        receivedAt: "Received on June 10, 2026",
         expiresAt: "Expires on March 11, 2027",
-        status: "Reserved",
-        note: "Separated for recurring institutional respiratory care orders.",
       },
     ],
   },
@@ -146,114 +121,124 @@ export default function MedicinePage() {
   const medicine =
     medicineCatalog[medicineId] ?? createFallbackMedicineOverview(medicineId);
   const { currentItens, Pagination } = useTable({
-    medicines: medicine.batches,
+    initialItens: medicine.batches,
     pageSize: 3,
   });
+  const { openModal, closeModal, Modal } = useModal();
 
   return (
-    <div className="space-y-6">
-      <section className="border-b-[2px] border-slate-300 py-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-          Medicine overview
-        </p>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-          {medicine.name}
-        </h2>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
-        <article className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-                Catalog details
-              </p>
-              <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-                Medicine information
-              </h3>
-            </div>
-            <span
-              className={[
-                "rounded-full px-3 py-1 text-xs font-semibold",
-                medicineStatusStyles[medicine.status] ??
-                  "bg-slate-100 text-slate-700",
-              ].join(" ")}
-            >
-              {medicine.status}
-            </span>
-          </div>
-
-          <p className="mt-6 text-sm leading-6 text-slate-600">
-            {medicine.description}
+    <>
+      <div className="space-y-6">
+        <section className="border-b-[2px] border-slate-300 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+            Medicine overview
           </p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight">
+            {medicine.name}
+          </h2>
+        </section>
 
-          <dl className="mt-6 grid gap-4 sm:grid-cols-2">
-            <InfoItem label="Category" value={medicine.category} />
-            <InfoItem label="Presentation" value={medicine.presentation} />
-            <InfoItem label="Price" value={medicine.price} />
-            <InfoItem label="Dosage" value={medicine.dosage} />
-            <InfoItem label="Manufacturer" value={medicine.manufacturer} />
-            <InfoItem label="Storage" value={medicine.storage} />
-          </dl>
-
-          <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4">
-            <p className="text-sm font-medium text-slate-700">
-              Operational note
-            </p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              {medicine.notes}
-            </p>
-          </div>
-        </article>
-
-        <div className="grid gap-4">
-          <MetricCard
-            label="Active batches"
-            value={String(medicine.batches.length).padStart(2, "0")}
-            detail="Tracked for this medicine record"
-          />
-          <MetricCard
-            label="Available quantity"
-            value={sumBatchQuantities(medicine.batches)}
-            detail="Across related batches"
-          />
-          <MetricCard
-            label="Next expiry"
-            value={getNextExpiryLabel(medicine.batches)}
-            detail="Closest batch review date"
-          />
-        </div>
-      </section>
-
-      <section className="grid gap-6">
-        <Table.Wrapper>
-          <Table.Header>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-                Related stock
-              </p>
-              <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-                Batch list
-              </h3>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                className="ml-auto inline-flex items-center justify-center rounded-[1rem] border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+        <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
+          <article className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  Catalog details
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold tracking-tight">
+                  Medicine information
+                </h3>
+              </div>
+              <span
+                className={[
+                  "rounded-full px-3 py-1 text-xs font-semibold",
+                  medicineStatusStyles[medicine.status] ??
+                    "bg-slate-100 text-slate-700",
+                ].join(" ")}
               >
-                Add batch
-              </button>
+                {medicine.status}
+              </span>
             </div>
-          </Table.Header>
-          <Table.Body>
-            {currentItens.map((batch) => (
-              <BatchItem key={batch.id} {...batch} />
-            ))}
-          </Table.Body>
-          <Pagination />
-        </Table.Wrapper>
-      </section>
-    </div>
+
+            <p className="mt-6 text-sm leading-6 text-slate-600">
+              {medicine.description}
+            </p>
+
+            <dl className="mt-6 grid gap-4 sm:grid-cols-2">
+              <InfoItem label="Category" value={medicine.category} />
+              <InfoItem label="Presentation" value={medicine.presentation} />
+              <InfoItem label="Price" value={medicine.price} />
+              <InfoItem label="Dosage" value={medicine.dosage} />
+              <InfoItem label="Manufacturer" value={medicine.manufacturer} />
+              <InfoItem label="Storage" value={medicine.storage} />
+            </dl>
+
+            <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4">
+              <p className="text-sm font-medium text-slate-700">
+                Operational note
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                {medicine.notes}
+              </p>
+            </div>
+          </article>
+
+          <div className="grid gap-4">
+            <MetricCard
+              label="Active batches"
+              value={String(8).padStart(2, "0")}
+              detail="Tracked for this medicine record"
+            />
+            <MetricCard
+              label="Available quantity"
+              value="220"
+              // value={sumBatchQuantities(batches)}
+              detail="Across related batches"
+            />
+            <MetricCard
+              label="Next expiry"
+              value="20 de Dezembro, 2026"
+              // value={getNextExpiryLabel(batches)}
+              detail="Closest batch review date"
+            />
+          </div>
+        </section>
+
+        <section className="grid gap-6">
+          <Table.Wrapper>
+            <Table.Header>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  Related stock
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold tracking-tight">
+                  Batch list
+                </h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={openModal}
+                  className="ml-auto inline-flex items-center justify-center rounded-[1rem] border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                >
+                  Add batch
+                </button>
+              </div>
+            </Table.Header>
+            <Table.Body>
+              {currentItens.map((batch) => (
+                <BatchItem key={batch.id} {...batch} />
+              ))}
+            </Table.Body>
+            <Pagination />
+          </Table.Wrapper>
+        </section>
+      </div>
+
+      <Modal closeModal={closeModal}>
+        <MedicineBatchForm onCancel={closeModal} />
+      </Modal>
+    </>
   );
 }
 
@@ -276,10 +261,7 @@ function createFallbackMedicineOverview(medicineId: string): MedicineOverview {
         id: `${medicineId}-batch-1`,
         code: "GEN-0001",
         quantity: "0 units",
-        receivedAt: "No receipt information",
         expiresAt: "No expiration information",
-        status: "Reserved",
-        note: "No related batch details available for this medicine yet.",
       },
     ],
   };
@@ -331,38 +313,18 @@ function MetricCard({ label, value, detail }: MetricCardProps) {
   );
 }
 
-function BatchItem({
-  code,
-  quantity,
-  receivedAt,
-  expiresAt,
-  status,
-  note,
-}: MedicineBatch) {
+function BatchItem({ code, quantity, expiresAt }: MedicineBatch) {
   return (
     <article className="rounded-2xl border border-slate-100 px-5 py-5 transition hover:border-slate-200 hover:bg-slate-50/60">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
             <h4 className="text-lg font-semibold text-slate-900">{code}</h4>
-            <span
-              className={[
-                "rounded-full px-3 py-1 text-xs font-semibold",
-                batchStatusStyles[status],
-              ].join(" ")}
-            >
-              {status}
-            </span>
           </div>
-          <p className="mt-2 text-sm text-slate-600">{note}</p>
           <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
             <div>
               <dt className="inline font-medium text-slate-600">Quantity:</dt>{" "}
               <dd className="inline">{quantity}</dd>
-            </div>
-            <div>
-              <dt className="inline font-medium text-slate-600">Received:</dt>{" "}
-              <dd className="inline">{receivedAt}</dd>
             </div>
             <div>
               <dt className="inline font-medium text-slate-600">Expiry:</dt>{" "}
