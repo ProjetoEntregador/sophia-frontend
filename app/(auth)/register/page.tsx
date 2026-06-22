@@ -7,9 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema, type RegisterFormValues } from "./register.schema";
 import { Input } from "@/components/Input";
 import { Label } from "@/components/Label";
-import { AuthService } from "@/services/authService";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { getErrorMessage } from "@/lib/api";
 
 export default function RegisterForm() {
+  const auth = useAuth();
+  const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,14 +31,22 @@ export default function RegisterForm() {
     },
   });
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit(async (body) => {
     setSubmitError(null);
     setIsSubmitting(true);
 
     try {
-      await AuthService.registerAccount(values);
-    } catch {
-      setSubmitError("We could not create your account. Try again.");
+      await auth.register({
+        username: body.fullName.trim(),
+        email: body.email.trim(),
+        password: body.password,
+        provider: "LOCAL",
+      });
+      router.push("/login");
+    } catch (error) {
+      setSubmitError(
+        getErrorMessage(error, "We could not create your account. Try again."),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -60,6 +72,7 @@ export default function RegisterForm() {
                 id="fullName"
                 type="text"
                 name="fullName"
+                placeholder="Usuario"
                 register={register}
                 error={errors}
               />
@@ -71,6 +84,7 @@ export default function RegisterForm() {
                 id="email"
                 type="email"
                 name="email"
+                placeholder="usuario@email.com"
                 register={register}
                 error={errors}
               />
@@ -82,6 +96,7 @@ export default function RegisterForm() {
                 id="password"
                 type="password"
                 name="password"
+                placeholder="********"
                 register={register}
                 error={errors}
               />
@@ -93,6 +108,7 @@ export default function RegisterForm() {
                 id="confirmPassword"
                 type="password"
                 name="confirmPassword"
+                placeholder="********"
                 register={register}
                 error={errors}
               />

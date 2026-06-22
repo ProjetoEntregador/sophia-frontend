@@ -16,3 +16,22 @@ export function getAuthorizedConfig(token: string): AuthorizedRequestConfig {
     },
   };
 }
+
+export function getErrorMessage(error: unknown, fallback: string) {
+  if (axios.isAxiosError(error)) {
+    const message =
+      typeof error.response?.data?.message === "string"
+        ? error.response.data.message
+        : undefined;
+
+    if (message) {
+      return message;
+    }
+  }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallback;
+}

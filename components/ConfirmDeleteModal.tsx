@@ -60,7 +60,7 @@ export function ConfirmDeleteModal({
         </p>
       ) : null}
 
-      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         <button
           type="button"
           onClick={onCancel}

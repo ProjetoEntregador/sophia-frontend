@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 
 type SidebarProps = {
   pharmacyId: string;
-  role: "admin" | "staff";
   name: string;
 };
 
@@ -15,7 +14,7 @@ const navigationItems = [
   { label: "Users", href: "/users" },
 ];
 
-export function Sidebar({ pharmacyId, role, name }: SidebarProps) {
+export function Sidebar({ pharmacyId, name }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -28,27 +27,25 @@ export function Sidebar({ pharmacyId, role, name }: SidebarProps) {
       </div>
 
       <nav className="mt-5 space-y-1">
-        {navigationItems
-          .filter((item) => item.label !== "Users" || role !== "staff")
-          .map((item) => {
-            const href = `/pharmacies/${pharmacyId}${item.href}`;
-            const isActive = pathname === href;
+        {navigationItems.map((item) => {
+          const href = `/pharmacies/${pharmacyId}${item.href}`;
+          const isActive = pathname === href;
 
-            return (
-              <Link
-                key={item.label}
-                href={href}
-                className={[
-                  "flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition",
-                  isActive
-                    ? "bg-slate-900 text-white shadow-[0_10px_30px_rgba(15,23,42,0.18)]"
-                    : "text-slate-700 hover:bg-slate-100",
-                ].join(" ")}
-              >
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+          return (
+            <Link
+              key={item.label}
+              href={href}
+              className={[
+                "flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition",
+                isActive
+                  ? "bg-slate-900 text-white shadow-[0_10px_30px_rgba(15,23,42,0.18)]"
+                  : "text-slate-700 hover:bg-slate-100",
+              ].join(" ")}
+            >
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

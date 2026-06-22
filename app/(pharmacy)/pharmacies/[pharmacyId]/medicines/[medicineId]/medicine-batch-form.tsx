@@ -3,18 +3,29 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/Input";
 import { Label } from "@/components/Label";
+import { MedicationService } from "@/services/medicationService";
+import { MedicationBatch } from "@/types/medicine";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   medicineBatchFormSchema,
   type MedicineBatchFormValues,
 } from "./medicine-batch-form.schema";
+import { getErrorMessage } from "@/lib/api";
 
 type MedicineBatchFormProps = {
+  medicationId: string;
   onCancel: () => void;
+  onSaved: (batch: MedicationBatch) => void;
+  onError: (message: string) => void;
 };
 
-export function MedicineBatchForm({ onCancel }: MedicineBatchFormProps) {
+export function MedicineBatchForm({
+  medicationId,
+  onCancel,
+  onSaved,
+  onError,
+}: MedicineBatchFormProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
@@ -36,14 +47,26 @@ export function MedicineBatchForm({ onCancel }: MedicineBatchFormProps) {
     onCancel();
   };
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit(async (body) => {
     setSubmitError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const batch = await MedicationService.createMedicationBatch({
+        medicationId,
+        batchNumber: body.code.trim(),
+        quantity: Number(body.quantity),
+        expirationDate: body.expiresOn,
+      });
+
+      onSaved(batch);
       handleClose();
-    } catch {
-      setSubmitError("We could not save the batch. Try again.");
+    } catch (error) {
+      const message = getErrorMessage(
+        error,
+        "We could not save the batch. Try again.",
+      );
+      setSubmitError(message);
+      onError(message);
     }
   });
 
@@ -111,7 +134,7 @@ export function MedicineBatchForm({ onCancel }: MedicineBatchFormProps) {
           </p>
         ) : null}
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
           <button
             type="button"
             onClick={handleClose}

@@ -3,39 +3,38 @@
 import { Label } from "@/components/Label";
 import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
+import { MedicationService } from "@/services/medicationService";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { medicineFormSchema, MedicineFormValues } from "./medicine-form.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-type SavedMedicine = {
-  name: string;
-  description: string;
-  price: string;
-};
+import { getErrorMessage } from "@/lib/api";
+import { Checkbox } from "@/components/Checkbox";
 
 export default function CreateMedicinePage() {
+  const router = useRouter();
   const params = useParams<{ pharmacyId: string }>();
   const { pharmacyId } = params;
 
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [savedMedicine, setSavedMedicine] = useState<SavedMedicine | null>(
-    null,
-  );
 
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
   } = useForm<MedicineFormValues>({
     resolver: zodResolver(medicineFormSchema),
     defaultValues: {
       name: "",
+      dosage: "",
+      pharmaceuticalForm: "",
+      manufacturer: "",
       description: "",
-      price: "",
+      stripe: "",
+      unitPrice: "",
+      prescriptionRequired: false,
     },
   });
 
@@ -43,17 +42,25 @@ export default function CreateMedicinePage() {
     setSubmitError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const id = Number.parseInt(pharmacyId, 10);
 
-      setSavedMedicine({
+      await MedicationService.createMedication({
+        pharmacyId: id,
         name: values.name.trim(),
-        description: values.description.trim(),
-        price: values.price.trim(),
+        dosage: values.dosage.trim(),
+        pharmaceuticalForm: values.pharmaceuticalForm.trim(),
+        manufacturer: values.manufacturer.trim(),
+        description: values.description?.trim() || undefined,
+        stripe: values.stripe.trim() || undefined,
+        prescriptionRequired: values.prescriptionRequired,
+        unitPrice: Number(values.unitPrice.replace(",", ".")),
       });
 
-      reset();
-    } catch {
-      setSubmitError("We could not save the medicine. Try again.");
+      router.push(`/pharmacies/${id}/medicines`);
+    } catch (error) {
+      setSubmitError(
+        getErrorMessage(error, "We could not save the medicine. Try again."),
+      );
     }
   });
 
@@ -92,6 +99,68 @@ export default function CreateMedicinePage() {
               />
             </div>
 
+            <div className="grid gap-5 sm:grid-cols-3">
+              <div>
+                <Label htmlFor="dosage">Dosage</Label>
+                <Input
+                  id="dosage"
+                  type="text"
+                  name="dosage"
+                  placeholder="500mg"
+                  register={register}
+                  error={errors}
+                />
+              </div>
+              <div>
+                <Label htmlFor="unitPrice">Price</Label>
+                <Input
+                  id="unitPrice"
+                  type="text"
+                  inputMode="decimal"
+                  name="unitPrice"
+                  placeholder="19.90"
+                  register={register}
+                  error={errors}
+                />
+              </div>
+              <div>
+                <Label htmlFor="stripe">Stripe</Label>
+                <Input
+                  id="stripe"
+                  type="text"
+                  name="stripe"
+                  placeholder="red"
+                  register={register}
+                  error={errors}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="pharmaceuticalForm">Pharmaceutical form</Label>
+                <Input
+                  id="pharmaceuticalForm"
+                  type="text"
+                  name="pharmaceuticalForm"
+                  placeholder="Tablet"
+                  register={register}
+                  error={errors}
+                />
+              </div>
+              <div>
+                <Label htmlFor="manufacturer">Manufacturer</Label>
+                <Input
+                  id="manufacturer"
+                  type="text"
+                  name="manufacturer"
+                  placeholder="EMS"
+                  register={register}
+                  error={errors}
+                />
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="description">Description</Label>
               <Textarea
@@ -103,18 +172,18 @@ export default function CreateMedicinePage() {
               />
             </div>
 
-            <div>
-              <Label htmlFor="price">Price</Label>
-              <Input
-                id="price"
-                type="text"
-                inputMode="decimal"
-                name="price"
-                placeholder="19.90"
+            <label
+              htmlFor="prescription"
+              className="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700"
+            >
+              <Checkbox
+                id="prescription"
+                name="prescriptionRequired"
                 register={register}
                 error={errors}
               />
-            </div>
+              Precisa de Prescrição
+            </label>
 
             {submitError ? (
               <p className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
@@ -122,17 +191,7 @@ export default function CreateMedicinePage() {
               </p>
             ) : null}
 
-            {savedMedicine ? (
-              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                <p className="font-semibold">Medicine saved successfully.</p>
-                <p className="mt-1">
-                  {savedMedicine.name} was added with price{" "}
-                  {savedMedicine.price}.
-                </p>
-              </div>
-            ) : null}
-
-            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
               <Link
                 href={`/pharmacies/${pharmacyId}/medicines`}
                 className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"

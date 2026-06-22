@@ -7,9 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormValues } from "./login.schema";
 import { Input } from "@/components/Input";
 import { Label } from "@/components/Label";
-import { AuthService } from "@/services/authService";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { getErrorMessage } from "@/lib/api";
 
 export default function LoginForm() {
+  const auth = useAuth();
+  const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,14 +29,20 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = handleSubmit(async (values) => {
+  const onSubmit = handleSubmit(async (body) => {
     setSubmitError(null);
     setIsSubmitting(true);
 
     try {
-      await AuthService.loginAccount(values);
-    } catch {
-      setSubmitError("We could not log you in. Check your credentials and try again.");
+      await auth.login(body);
+      router.push("/");
+    } catch (error) {
+      setSubmitError(
+        getErrorMessage(
+          error,
+          "We could not log you in. Check your credentials and try again.",
+        ),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -56,6 +66,7 @@ export default function LoginForm() {
                 id="email"
                 type="email"
                 name="email"
+                placeholder="usuario@email.com"
                 register={register}
                 error={errors}
               />
@@ -67,6 +78,7 @@ export default function LoginForm() {
                 id="password"
                 type="password"
                 name="password"
+                placeholder="********"
                 register={register}
                 error={errors}
               />

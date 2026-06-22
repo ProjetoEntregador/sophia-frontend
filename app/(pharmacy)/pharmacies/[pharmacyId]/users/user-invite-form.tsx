@@ -5,16 +5,19 @@ import { Input } from "@/components/Input";
 import { Label } from "@/components/Label";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useParams } from "next/navigation";
 import {
   userInviteFormSchema,
   type UserInviteFormValues,
 } from "./user-invite-form.schema";
+import { getErrorMessage } from "@/lib/api";
 
 type UserInviteFormProps = {
   onCancel: () => void;
 };
 
 export function UserInviteForm({ onCancel }: UserInviteFormProps) {
+  const params = useParams<{ pharmacyId: string }>();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
@@ -25,7 +28,6 @@ export function UserInviteForm({ onCancel }: UserInviteFormProps) {
     resolver: zodResolver(userInviteFormSchema),
     defaultValues: {
       email: "",
-      role: "staff",
     },
   });
 
@@ -39,10 +41,34 @@ export function UserInviteForm({ onCancel }: UserInviteFormProps) {
     setSubmitError(null);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await fetch(
+        `/api/pharmacies/${params.pharmacyId}/invites`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: values.email.trim(),
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          typeof data.message === "string"
+            ? data.message
+            : "We could not send the invite.",
+        );
+      }
+
       handleClose();
-    } catch {
-      setSubmitError("We could not send the invite. Try again.");
+    } catch (error) {
+      setSubmitError(
+        getErrorMessage(error, "We could not send the invite. Try again."),
+      );
     }
   });
 
@@ -81,7 +107,7 @@ export function UserInviteForm({ onCancel }: UserInviteFormProps) {
 
         <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
           The invite will only be accepted by an account using the exact invited
-          email address.
+          email address. The current backend accepts the invite as staff access.
         </div>
 
         {submitError ? (
@@ -90,7 +116,7 @@ export function UserInviteForm({ onCancel }: UserInviteFormProps) {
           </p>
         ) : null}
 
-        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
           <button
             type="button"
             onClick={handleClose}
