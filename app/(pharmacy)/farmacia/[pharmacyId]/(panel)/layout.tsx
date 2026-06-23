@@ -32,7 +32,6 @@ export default async function PharmacyWorkspaceLayout({
       <div className="mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:px-8">
         <div className="w-[280px]"></div>
         <Sidebar pharmacyId={String(pharmacy.id)} name={pharmacy.name} />
-
         <section className="min-w-0">{children}</section>
       </div>
     </main>

@@ -1,8 +1,9 @@
 import { getUserToken } from "@/app/actions/auth";
 import { MedicationService } from "@/services/medicationService";
 import { PharmacyService } from "@/services/pharmacyService";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ShowLocation } from "./show-location";
+import Link from "next/link";
 
 type PharmacyOverviewPageProps = {
   params: Promise<{ pharmacyId: string }>;
@@ -28,31 +29,24 @@ export default async function PharmacyOverviewPage({
 
   const overviewMetrics = [
     {
-      label: "Medicines",
+      label: "Medicamentos",
       value: String(medicines.length).padStart(2, "0"),
-      detail: "Catalog entries loaded from the medication service",
+      detail: "Total de medicamentos cadastrados.",
     },
     {
-      label: "City",
-      value: pharmacy.city,
-      detail: "Location returned by the pharmacy service",
-    },
-    {
-      label: "Phone",
-      value: pharmacy.phone,
-      detail: "Current contact information for this workspace",
+      label: "Funcionários",
+      value: 18,
+      detail: "Total de funcionários.",
     },
   ];
 
   return (
     <div className="space-y-6">
       <section className="border-b-[2px] border-slate-300 py-4">
-        <h2 className="text-3xl font-semibold tracking-tight">
-          Pharmacy Overview
-        </h2>
+        <h2 className="text-3xl font-semibold tracking-tight">Dashboard</h2>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-2">
         {overviewMetrics.map((metric) => (
           <article
             key={metric.label}
@@ -69,56 +63,52 @@ export default async function PharmacyOverviewPage({
         ))}
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+      <section className="gap-6">
         <article className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-            Pharmacy details
+            Detalhes da farmácia
           </p>
           <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-            Workspace information
+            Informações
           </h3>
 
           <div className="mt-6 space-y-4">
             <div className="rounded-2xl border border-slate-100 px-4 py-4">
-              <p className="text-sm font-medium text-slate-500">Address</p>
+              <p className="text-sm font-medium text-slate-500">Telefone</p>
+              <p className="mt-2 text-base font-semibold text-slate-900">
+                {pharmacy.phone}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-100 px-4 py-4">
+              <p className="text-sm font-medium text-slate-500">Cidade</p>
+              <p className="mt-2 text-base font-semibold text-slate-900">
+                {pharmacy.city}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-slate-100 px-4 py-4">
+              <p className="text-sm font-medium text-slate-500">Endereço</p>
               <p className="mt-2 text-base font-semibold text-slate-900">
                 {pharmacy.address}
               </p>
             </div>
             <div className="rounded-2xl border border-slate-100 px-4 py-4">
-              <p className="text-sm font-medium text-slate-500">Coordinates</p>
-              <p className="mt-2 text-base font-semibold text-slate-900">
-                {pharmacy.latitude}, {pharmacy.longitude}
+              <p className="mb-2 text-sm font-medium text-slate-500">
+                Localização
               </p>
+              <ShowLocation
+                latitude={pharmacy.latitude}
+                longitude={pharmacy.longitude}
+              />
             </div>
           </div>
-        </article>
 
-        <article className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-            Shortcuts
-          </p>
-          <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-            Workspace actions
-          </h3>
-
-          <div className="mt-6 grid gap-3">
+          <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <Link
-              href={`/pharmacies/${pharmacy.id}/medicines`}
-              className="rounded-2xl border border-slate-200 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              href={`/farmacia/${pharmacy.id}/editar`}
+              className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-purple-500"
             >
-              Open medicine catalog
+              Editar
             </Link>
-            <Link
-              href={`/pharmacies/${pharmacy.id}/users`}
-              className="rounded-2xl border border-slate-200 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              Open invite and membership area
-            </Link>
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
-              The current backend exposes invite creation, but it does not yet
-              expose member listing or role data for this page.
-            </div>
           </div>
         </article>
       </section>

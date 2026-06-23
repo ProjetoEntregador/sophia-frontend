@@ -22,7 +22,7 @@ export function Checkbox<T extends FieldValues>(props: CheckboxProps<T>) {
         {...rest}
         id={id}
         type="checkbox"
-        className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+        className="h-4 w-4 rounded border-slate-300 text-purple-600 focus:ring-purple-500"
         {...register(name)}
       />
       {error[name] ? (

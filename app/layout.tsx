@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Sophia",
-  description: "Pharmacy management platform",
+  description: "Plataforma de gerenciamento de farmácias",
 };
 
 export default function RootLayout({

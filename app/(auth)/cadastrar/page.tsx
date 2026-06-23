@@ -42,10 +42,13 @@ export default function RegisterForm() {
         password: body.password,
         provider: "LOCAL",
       });
-      router.push("/login");
+      router.push("/entrar");
     } catch (error) {
       setSubmitError(
-        getErrorMessage(error, "We could not create your account. Try again."),
+        getErrorMessage(
+          error,
+          "Problemas ao realizar o cadastro. Tente novamente mais tarde.",
+        ),
       );
     } finally {
       setIsSubmitting(false);
@@ -58,10 +61,10 @@ export default function RegisterForm() {
         <section className="w-[460px] rounded-[1rem] border border-slate-200 bg-white px-6 py-8 shadow-[0_30px_100px_rgba(15,23,42,0.12)] sm:px-8">
           <div className="mb-8">
             <h2 className="text-2xl font-semibold tracking-tight">
-              Create account
+              Cadastrar-se
             </h2>
             <p className="mt-2 text-sm text-slate-600">
-              Fill in the details below to register.
+              Preencha os campos abaixo para realizar o cadastro.
             </p>
           </div>
 
@@ -72,7 +75,7 @@ export default function RegisterForm() {
                 id="fullName"
                 type="text"
                 name="fullName"
-                placeholder="Usuario"
+                placeholder="John Doe"
                 register={register}
                 error={errors}
               />
@@ -84,7 +87,7 @@ export default function RegisterForm() {
                 id="email"
                 type="email"
                 name="email"
-                placeholder="usuario@email.com"
+                placeholder="johndoe@email.com"
                 register={register}
                 error={errors}
               />
@@ -123,16 +126,16 @@ export default function RegisterForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="cursor-pointer inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+              className="cursor-pointer inline-flex w-full items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting ? "Creating account..." : "Register"}
+              {isSubmitting ? "Cadastrando..." : "Cadastrar"}
             </button>
           </form>
 
           <div className="my-6 flex items-center gap-4">
             <div className="h-px flex-1 bg-slate-200" />
             <span className="text-xs font-medium uppercase tracking-[0.2em] text-slate-400">
-              Or
+              Ou
             </span>
             <div className="h-px flex-1 bg-slate-200" />
           </div>
@@ -141,16 +144,16 @@ export default function RegisterForm() {
             type="button"
             className="cursor-pointer inline-flex w-full items-center justify-center rounded-lg border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
           >
-            Continue with Google
+            Continuar com o Google
           </button>
 
           <p className="mt-6 text-center text-sm text-slate-600">
-            Already have an account?{" "}
+            Já possui uma conta?{" "}
             <Link
-              href="/login"
-              className="font-semibold text-emerald-700 underline-offset-4 hover:underline"
+              href="/entrar"
+              className="font-semibold text-purple-700 underline-offset-4 hover:underline"
             >
-              Log in
+              Entrar
             </Link>
           </p>
         </section>

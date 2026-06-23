@@ -16,7 +16,7 @@ export function Card({ id, name, phone, description }: CardProps) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-            Pharmacy
+            Farmácia
           </p>
           <h2 className="mt-2 text-xl font-semibold tracking-tight">{name}</h2>
         </div>
@@ -29,14 +29,14 @@ export function Card({ id, name, phone, description }: CardProps) {
 
       <div className="mt-auto flex items-center justify-between gap-4">
         <div className="text-sm text-slate-500">
-          Contact: <span className="font-medium text-slate-700">{phone}</span>
+          Contato: <span className="font-medium text-slate-700">{phone}</span>
         </div>
 
         <Link
-          href={`/pharmacies/${id}`}
-          className="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700"
+          href={`/farmacia/${id}`}
+          className="inline-flex items-center justify-center rounded-full bg-purple-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-purple-500"
         >
-          Enter pharmacy
+          Acessar
         </Link>
       </div>
     </article>

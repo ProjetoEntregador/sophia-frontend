@@ -14,10 +14,10 @@ export default async function Home() {
       <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-6 sm:px-6 lg:px-8">
         <div className="w-full flex gap-3 sm:flex-row">
           <Link
-            href="/pharmacies/new"
-            className="ml-auto inline-flex items-center justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500"
+            href="/farmacia/criar"
+            className="ml-auto inline-flex items-center justify-center rounded-full bg-purple-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-purple-500"
           >
-            Create pharmacy
+            Criar Farmácia
           </Link>
         </div>
 
@@ -29,7 +29,7 @@ export default async function Home() {
                 id={pharmacy.id}
                 name={pharmacy.name}
                 phone={pharmacy.phone}
-                description="Open this workspace to manage pharmacy details, medicines, and invitation flows supported by the current backend."
+                description="Acesse o painel para gerenciar os dados da farmácia, medicamentos e funcionários."
               />
             ))}
           </div>

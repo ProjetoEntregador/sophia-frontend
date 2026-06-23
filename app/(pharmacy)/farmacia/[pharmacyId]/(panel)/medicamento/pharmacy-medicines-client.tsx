@@ -30,9 +30,7 @@ export function PharmacyMedicinesClient({
   return (
     <div className="space-y-6">
       <section className="border-b-[2px] border-slate-300 py-4">
-        <h2 className="text-3xl font-semibold tracking-tight">
-          Pharmacy Medicines
-        </h2>
+        <h2 className="text-3xl font-semibold tracking-tight">Medicamentos</h2>
       </section>
 
       <section className="grid gap-6">
@@ -40,18 +38,18 @@ export function PharmacyMedicinesClient({
           <Table.Header>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-                Catalog entries
+                Estoque
               </p>
               <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-                Medicine list
+                Lista de Medicamentos
               </h3>
             </div>
             <div className="flex flex-wrap gap-3">
               <Link
-                href={`/pharmacies/${pharmacyId}/medicines/create`}
+                href={`/farmacia/${pharmacyId}/medicamento/criar`}
                 className="ml-auto inline-flex items-center justify-center rounded-[1rem] border-[1px] border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
               >
-                Add medicine
+                Criar Medicamento
               </Link>
             </div>
           </Table.Header>
@@ -92,25 +90,20 @@ function Item({ medicine, pharmacyId, onDelete }: ItemProps) {
               </h4>
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                 {medicine.prescriptionRequired
-                  ? "Prescription required"
-                  : "Catalog item"}
+                  ? "Exige Prescrição"
+                  : "Não Exige Prescrição"}
               </span>
             </div>
             <p className="mt-2 text-sm text-slate-600">
-              {medicine.description ||
-                "No description provided for this medicine."}
+              {medicine.description || "Sem descrição."}
             </p>
             <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
               <div>
-                <dt className="inline font-medium text-slate-600">Dosage:</dt>{" "}
+                <dt className="inline font-medium text-slate-600">Dose:</dt>{" "}
                 <dd className="inline">{medicine.dosage}</dd>
               </div>
               <div>
-                <dt className="inline font-medium text-slate-600">Form:</dt>{" "}
-                <dd className="inline">{medicine.pharmaceuticalForm}</dd>
-              </div>
-              <div>
-                <dt className="inline font-medium text-slate-600">Price:</dt>{" "}
+                <dt className="inline font-medium text-slate-600">Preço:</dt>{" "}
                 <dd className="inline">R$ {medicine.unitPrice}</dd>
               </div>
             </dl>
@@ -118,28 +111,28 @@ function Item({ medicine, pharmacyId, onDelete }: ItemProps) {
 
           <div className="flex shrink-0 gap-3">
             <Link
-              href={`/pharmacies/${pharmacyId}/medicines/${medicine.id}`}
+              href={`/farmacia/${pharmacyId}/medicamento/${medicine.id}`}
               className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
             >
-              View
+              Detalhar
             </Link>
             <button
               type="button"
               onClick={openModal}
               className="rounded-full border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50"
             >
-              Delete
+              Remover
             </button>
           </div>
         </div>
       </article>
       <Modal closeModal={closeModal}>
         <ConfirmDeleteModal
-          contextLabel="Catalog entries"
-          title="Delete medicine"
-          description={`Remove ${medicine.name} from this pharmacy catalog.`}
-          impactMessage="This action permanently deletes the medicine record from the current pharmacy workspace."
-          confirmLabel="Delete medicine"
+          contextLabel="Estoque"
+          title="Remover Medicamento"
+          description={`Remove ${medicine.name} do estoque.`}
+          impactMessage="Essa ação removerá permanentemente o medicamento da farmácia."
+          confirmLabel="Remover Medicamento"
           onCancel={closeModal}
           onConfirm={() => {
             onDelete();

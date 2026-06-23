@@ -51,7 +51,7 @@ const roleLabels: Record<PharmacyMember["role"], string> = {
 };
 
 const statusStyles: Record<PharmacyMember["status"], string> = {
-  Active: "bg-emerald-50 text-emerald-700",
+  Active: "bg-purple-50 text-purple-700",
   Invited: "bg-amber-50 text-amber-800",
   "Pending removal": "bg-rose-50 text-rose-700",
 };

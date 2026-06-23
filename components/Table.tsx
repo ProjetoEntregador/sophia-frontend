@@ -53,7 +53,9 @@ function Pagination({
     <div className="mt-6 flex flex-row justify-between items-center">
       <p className="text-sm font-semibold text-slate-600">
         {currentPage}{" "}
-        <span className="font-medium text-slate-400">/ {totalPages} pages</span>
+        <span className="font-medium text-slate-400">
+          / {totalPages} páginas
+        </span>
       </p>
 
       <div className="flex items-center gap-2">

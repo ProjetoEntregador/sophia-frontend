@@ -9,9 +9,9 @@ type SidebarProps = {
 };
 
 const navigationItems = [
-  { label: "Overview", href: "" },
-  { label: "Medicines", href: "/medicines" },
-  { label: "Users", href: "/users" },
+  { label: "Dashboard", href: "" },
+  { label: "Medicamentos", href: "/medicamento" },
+  { label: "Funcionários", href: "/funcionario" },
 ];
 
 export function Sidebar({ pharmacyId, name }: SidebarProps) {
@@ -21,15 +21,19 @@ export function Sidebar({ pharmacyId, name }: SidebarProps) {
     <aside className="w-[280px] h-[calc(100vh-112px)] fixed rounded-[1rem] border border-slate-200 bg-white p-5 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
       <div className="border-b border-slate-100 pb-5">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-          Pharmacy workspace
+          Painel da farmácia
         </p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">{name}</h1>
       </div>
 
       <nav className="mt-5 space-y-1">
         {navigationItems.map((item) => {
-          const href = `/pharmacies/${pharmacyId}${item.href}`;
-          const isActive = pathname === href;
+          const href = `/farmacia/${pharmacyId}${item.href}`;
+
+          let isActive = pathname.startsWith(href);
+          if (item.label == "Dashboard") {
+            isActive = pathname == href;
+          }
 
           return (
             <Link
@@ -38,7 +42,7 @@ export function Sidebar({ pharmacyId, name }: SidebarProps) {
               className={[
                 "flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition",
                 isActive
-                  ? "bg-slate-900 text-white shadow-[0_10px_30px_rgba(15,23,42,0.18)]"
+                  ? "bg-purple-600 text-white shadow-[0_10px_30px_rgba(15,23,42,0.18)]"
                   : "text-slate-700 hover:bg-slate-100",
               ].join(" ")}
             >

@@ -3,9 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/Input";
 import { Label } from "@/components/Label";
-import { MedicationService } from "@/services/medicationService";
 import { MedicationBatch } from "@/types/medicine";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   medicineBatchFormSchema,
@@ -14,14 +13,20 @@ import {
 import { getErrorMessage } from "@/lib/api";
 
 type MedicineBatchFormProps = {
+  title: string;
+  description: string;
   medicationId: string;
+  initialBatch?: MedicationBatch;
   onCancel: () => void;
-  onSaved: (batch: MedicationBatch) => void;
+  onSaved: (batch: Omit<MedicationBatch, "id" | "createdAt">) => Promise<void>;
   onError: (message: string) => void;
 };
 
 export function MedicineBatchForm({
+  title,
+  description,
   medicationId,
+  initialBatch,
   onCancel,
   onSaved,
   onError,
@@ -30,6 +35,7 @@ export function MedicineBatchForm({
   const {
     register,
     handleSubmit,
+    setValue,
     reset,
     formState: { errors, isSubmitting },
   } = useForm<MedicineBatchFormValues>({
@@ -41,6 +47,14 @@ export function MedicineBatchForm({
     },
   });
 
+  useEffect(() => {
+    if (initialBatch) {
+      setValue("code", initialBatch.batchCode);
+      setValue("quantity", String(initialBatch.quantity));
+      setValue("expiresOn", initialBatch.expirationDate);
+    }
+  }, [initialBatch]);
+
   const handleClose = () => {
     reset();
     setSubmitError(null);
@@ -51,19 +65,17 @@ export function MedicineBatchForm({
     setSubmitError(null);
 
     try {
-      const batch = await MedicationService.createMedicationBatch({
+      await onSaved({
         medicationId,
-        batchNumber: body.code.trim(),
+        batchCode: body.code.trim(),
         quantity: Number(body.quantity),
         expirationDate: body.expiresOn,
       });
-
-      onSaved(batch);
       handleClose();
     } catch (error) {
       const message = getErrorMessage(
         error,
-        "We could not save the batch. Try again.",
+        "Erro ao salvar o lote. Tente novamente mais tarde.",
       );
       setSubmitError(message);
       onError(message);
@@ -75,22 +87,19 @@ export function MedicineBatchForm({
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-            Related stock
+            Lote
           </p>
           <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">
-            Add batch
+            {title}
           </h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Register a medicine batch with the core stock details already used
-            in this medicine workspace.
-          </p>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
         </div>
       </div>
 
       <form className="mt-6 space-y-5" onSubmit={onSubmit} noValidate>
         <div className="w-full">
           <div>
-            <Label htmlFor="code">Batch code</Label>
+            <Label htmlFor="code">Código do Lote</Label>
             <Input
               id="code"
               type="text"
@@ -104,7 +113,7 @@ export function MedicineBatchForm({
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <Label htmlFor="quantity">Quantity</Label>
+            <Label htmlFor="quantity">Quantidade</Label>
             <Input
               id="quantity"
               type="text"
@@ -117,11 +126,12 @@ export function MedicineBatchForm({
           </div>
 
           <div>
-            <Label htmlFor="expiresOn">Expiration date</Label>
+            <Label htmlFor="expiresOn">Data de Validade</Label>
             <Input
               id="expiresOn"
               type="date"
               name="expiresOn"
+              placeholder="01/01/2026"
               register={register}
               error={errors}
             />
@@ -141,14 +151,14 @@ export function MedicineBatchForm({
             disabled={isSubmitting}
             className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Cancel
+            Cancelar
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Saving batch..." : "Save batch"}
+            {isSubmitting ? "Salvando Lote..." : "Salvar Lote"}
           </button>
         </div>
       </form>

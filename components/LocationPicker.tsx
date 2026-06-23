@@ -3,11 +3,29 @@
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 
-type Props = {
+type LocationPickerProps = {
   lat: number;
   lng: number;
   onChange: (lat: number, lng: number) => void;
 };
+
+export default function LocationPicker({
+  lat,
+  lng,
+  onChange,
+}: LocationPickerProps) {
+  return (
+    <MapContainer
+      center={[lat, lng]}
+      zoom={20}
+      style={{ height: "400px", width: "100%" }}
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+      <LocationMarker position={[lat, lng]} onChange={onChange} />
+    </MapContainer>
+  );
+}
 
 const markerIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -16,13 +34,12 @@ const markerIcon = new L.Icon({
   iconAnchor: [12, 41],
 });
 
-function LocationMarker({
-  position,
-  onChange,
-}: {
+type LocationMarkerProps = {
   position: [number, number];
   onChange: (lat: number, lng: number) => void;
-}) {
+};
+
+function LocationMarker({ position, onChange }: LocationMarkerProps) {
   useMapEvents({
     click(e) {
       onChange(e.latlng.lat, e.latlng.lng);
@@ -42,19 +59,5 @@ function LocationMarker({
         },
       }}
     />
-  );
-}
-
-export default function LocationPicker({ lat, lng, onChange }: Props) {
-  return (
-    <MapContainer
-      center={[lat, lng]}
-      zoom={20}
-      style={{ height: "400px", width: "100%" }}
-    >
-      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-      <LocationMarker position={[lat, lng]} onChange={onChange} />
-    </MapContainer>
   );
 }

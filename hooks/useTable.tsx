@@ -39,6 +39,19 @@ export function useTable<T extends { id: string }>({
     setItems((pre) => [data, ...pre]);
   };
 
+  const editItem = (data: T, id: string) => {
+    const newItems = items.filter((item) => {
+      if (item.id != id) {
+        return item;
+      }
+      return {
+        ...item,
+        ...data,
+      };
+    });
+    setItems(newItems);
+  };
+
   const removeItem = (id: string) => {
     const newItems = items.filter((item) => item.id != id);
     setItems(newItems);
@@ -50,6 +63,7 @@ export function useTable<T extends { id: string }>({
     goToNextPage,
     currentItens,
     addItem,
+    editItem,
     removeItem,
     Pagination: () => (
       <Table.Pagination

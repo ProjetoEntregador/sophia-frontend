@@ -21,7 +21,7 @@ export function Textarea<T extends FieldValues>(props: TextareaProps<T>) {
       <textarea
         {...rest}
         id={id}
-        className="min-h-32 w-full resize-y rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100"
+        className="min-h-32 w-full resize-y rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-purple-500 focus:ring-4 focus:ring-purple-100"
         {...register(name)}
       />
       {error[name] ? (

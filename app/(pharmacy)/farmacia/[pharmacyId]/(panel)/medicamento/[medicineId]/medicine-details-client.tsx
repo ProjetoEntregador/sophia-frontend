@@ -8,6 +8,7 @@ import { Medication, MedicationBatch } from "@/types/medicine";
 import { useState } from "react";
 import { MedicineBatchForm } from "./medicine-batch-form";
 import { MedicationService } from "@/services/medicationService";
+import Link from "next/link";
 
 type MedicineDetailsClientProps = {
   medicine: Medication;
@@ -19,7 +20,7 @@ export function MedicineDetailsClient({
   initialBatches,
 }: MedicineDetailsClientProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const { currentItens, addItem, removeItem, Pagination } = useTable({
+  const { currentItens, addItem, editItem, removeItem, Pagination } = useTable({
     initialItens: initialBatches,
     pageSize: 4,
   });
@@ -34,9 +35,6 @@ export function MedicineDetailsClient({
     <>
       <div className="space-y-6">
         <section className="border-b-[2px] border-slate-300 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-            Medicine overview
-          </p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight">
             {medicine.name}
           </h2>
@@ -53,35 +51,37 @@ export function MedicineDetailsClient({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-                  Catalog details
+                  Detalhe medicamento
                 </p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-                  Medicine information
+                  Informações do Medicamento
                 </h3>
               </div>
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                 {medicine.prescriptionRequired
-                  ? "Prescription required"
-                  : "Standard catalog item"}
+                  ? "Exige Prescrição"
+                  : "Não Exige Prescrição"}
               </span>
             </div>
 
             <p className="mt-6 text-sm leading-6 text-slate-600">
-              {medicine.description ||
-                "No description provided for this medicine."}
+              {medicine.description || "Sem descrição."}
             </p>
 
             <dl className="mt-6 grid gap-4 sm:grid-cols-2">
-              <InfoItem label="Dosage" value={medicine.dosage} />
-              <InfoItem label="Form" value={medicine.pharmaceuticalForm} />
-              <InfoItem label="Price" value={`R$ ${medicine.unitPrice}`} />
-              <InfoItem label="Manufacturer" value={medicine.manufacturer} />
+              <InfoItem label="Dose" value={medicine.dosage} />
               <InfoItem
-                label="Stripe"
+                label="Fórmula Farmacêutica"
+                value={medicine.pharmaceuticalForm}
+              />
+              <InfoItem label="Preço" value={`R$ ${medicine.unitPrice}`} />
+              <InfoItem label="Fabricante" value={medicine.manufacturer} />
+              <InfoItem
+                label="Tarja"
                 value={medicine.stripe || "Not informed"}
               />
               <InfoItem
-                label="Created at"
+                label="Data de Criação"
                 value={new Date(medicine.createdAt).toLocaleDateString("en-CA")}
               />
             </dl>
@@ -89,32 +89,41 @@ export function MedicineDetailsClient({
 
           <div className="grid gap-4">
             <MetricCard
-              label="Active batches"
+              label="Total de Lotes"
               value={String(currentItens.length).padStart(2, "0")}
-              detail="Tracked for this medicine record"
+              detail="Total de lotes do medicamento"
             />
             <MetricCard
-              label="Available quantity"
+              label="Quantidade"
               value={String(sumBatchQuantities(currentItens))}
-              detail="Across related batches"
+              detail="Quantidadae total do medicamento"
             />
             <MetricCard
-              label="Next expiry"
+              label="Próxima Validade"
               value={getNextExpiryLabel(currentItens)}
-              detail="Closest batch review date"
+              detail="Validade mais próxima de lote do medicamento"
             />
           </div>
         </section>
+
+        <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <Link
+            href={`/farmacia/${medicine.pharmacyId}/medicamento/${medicine.id}/editar`}
+            className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-purple-500"
+          >
+            Editar
+          </Link>
+        </div>
 
         <section className="grid gap-6">
           <Table.Wrapper>
             <Table.Header>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-                  Related stock
+                  Lotes do Medicamento
                 </p>
                 <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-                  Batch list
+                  Lista de Lotes
                 </h3>
               </div>
               <div className="flex flex-wrap gap-3">
@@ -123,7 +132,7 @@ export function MedicineDetailsClient({
                   onClick={openModal}
                   className="ml-auto inline-flex items-center justify-center rounded-[1rem] border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
                 >
-                  Add batch
+                  Criar Lote
                 </button>
               </div>
             </Table.Header>
@@ -131,7 +140,9 @@ export function MedicineDetailsClient({
               {currentItens.map((batch) => (
                 <BatchItem
                   key={batch.id}
-                  batch={batch}
+                  medicineId={medicine.id}
+                  initialBatch={batch}
+                  onEdit={editItem}
                   onDelete={() => removeBatch(batch.id)}
                 />
               ))}
@@ -143,9 +154,17 @@ export function MedicineDetailsClient({
 
       <Modal closeModal={closeModal}>
         <MedicineBatchForm
+          title="Criar Lote"
+          description="Preencha os campos abaixo para criar uma nova lote."
           medicationId={medicine.id}
           onCancel={closeModal}
-          onSaved={(batch) => {
+          onSaved={async (batchData) => {
+            const batch = await MedicationService.createMedicationBatch({
+              batchNumber: batchData.batchCode,
+              expirationDate: batchData.expirationDate,
+              medicationId: batchData.medicationId,
+              quantity: batchData.quantity,
+            });
             addItem(batch);
             closeModal();
           }}
@@ -201,13 +220,19 @@ function MetricCard({
 }
 
 function BatchItem({
-  batch,
+  initialBatch,
+  onEdit,
   onDelete,
+  medicineId,
 }: {
-  batch: MedicationBatch;
+  initialBatch: MedicationBatch;
+  onEdit: (data: MedicationBatch, id: string) => void;
   onDelete: () => Promise<void>;
+  medicineId: string;
 }) {
-  const { openModal, closeModal, Modal } = useModal();
+  const confirmDelete = useModal();
+  const edit = useModal();
+  const [batch, setBatch] = useState(initialBatch);
 
   return (
     <>
@@ -221,11 +246,15 @@ function BatchItem({
             </div>
             <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
               <div>
-                <dt className="inline font-medium text-slate-600">Quantity:</dt>{" "}
+                <dt className="inline font-medium text-slate-600">
+                  Quantidade:
+                </dt>{" "}
                 <dd className="inline">{batch.quantity}</dd>
               </div>
               <div>
-                <dt className="inline font-medium text-slate-600">Expiry:</dt>{" "}
+                <dt className="inline font-medium text-slate-600">
+                  Data de Validade:
+                </dt>{" "}
                 <dd className="inline">
                   {new Date(batch.expirationDate).toLocaleDateString("en-CA")}
                 </dd>
@@ -236,28 +265,70 @@ function BatchItem({
           <div className="flex shrink-0 gap-3">
             <button
               type="button"
-              onClick={openModal}
+              onClick={edit.openModal}
+              className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+            >
+              Editar
+            </button>
+            <button
+              type="button"
+              onClick={confirmDelete.openModal}
               className="rounded-full border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50"
             >
-              Delete
+              Remover
             </button>
           </div>
         </div>
       </article>
-      <Modal closeModal={closeModal}>
+      <confirmDelete.Modal closeModal={confirmDelete.closeModal}>
         <ConfirmDeleteModal
-          contextLabel="Pharmacy medicine batch"
-          title="Remove batch"
-          description={`Remove ${batch.batchCode} from this pharmacy workspace.`}
-          impactMessage="This action permanently deletes the medicine batch record from the current pharmacy workspace."
-          confirmLabel="Remove batch"
-          onCancel={closeModal}
+          contextLabel="Lote"
+          title="Remover Lote"
+          description={`Remove ${batch.batchCode} dos lotes do medicamento.`}
+          impactMessage="Essa ação removerá permanentemente o lote do medicamento."
+          confirmLabel="Remover Lote"
+          onCancel={confirmDelete.closeModal}
           onConfirm={async () => {
             await onDelete();
-            closeModal();
+            confirmDelete.closeModal();
           }}
         />
-      </Modal>
+      </confirmDelete.Modal>
+      <edit.Modal closeModal={edit.closeModal}>
+        <MedicineBatchForm
+          title="Editar Lote"
+          description="Preencha os campos abaixo para editar o lote."
+          medicationId={medicineId}
+          initialBatch={{
+            ...batch,
+            expirationDate: new Date(batch.expirationDate)
+              .toISOString()
+              .split("T")[0],
+          }}
+          onCancel={edit.closeModal}
+          onSaved={async (batchData) => {
+            await MedicationService.updateMedicationBatch(initialBatch.id, {
+              batchNumber: batchData.batchCode,
+              expirationDate: batchData.expirationDate,
+              medicationId: batchData.medicationId,
+              quantity: batchData.quantity,
+            });
+
+            const newBatch = {
+              ...batch,
+              batchCode: batchData.batchCode,
+              expirationDate: batchData.expirationDate,
+              medicationId: batchData.medicationId,
+              quantity: batchData.quantity,
+            };
+
+            setBatch(newBatch);
+            onEdit(newBatch, batch.id);
+            edit.closeModal();
+          }}
+          onError={() => {}}
+        />
+      </edit.Modal>
     </>
   );
 }

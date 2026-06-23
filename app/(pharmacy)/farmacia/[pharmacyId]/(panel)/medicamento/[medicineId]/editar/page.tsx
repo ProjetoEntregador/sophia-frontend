@@ -6,23 +6,24 @@ import { Textarea } from "@/components/Textarea";
 import { MedicationService } from "@/services/medicationService";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { medicineFormSchema, MedicineFormValues } from "./medicine-form.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getErrorMessage } from "@/lib/api";
 import { Checkbox } from "@/components/Checkbox";
 
-export default function CreateMedicinePage() {
+export default function EditMedicinePage() {
   const router = useRouter();
-  const params = useParams<{ pharmacyId: string }>();
-  const { pharmacyId } = params;
+  const params = useParams<{ pharmacyId: string; medicineId: string }>();
+  const { pharmacyId, medicineId } = params;
 
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<MedicineFormValues>({
     resolver: zodResolver(medicineFormSchema),
@@ -38,13 +39,31 @@ export default function CreateMedicinePage() {
     },
   });
 
+  useEffect(() => {
+    const getData = async () => {
+      const medication = await MedicationService.getMedicationById(medicineId);
+
+      if (!medication) return;
+
+      setValue("name", medication.name);
+      setValue("dosage", medication.dosage);
+      setValue("pharmaceuticalForm", medication.pharmaceuticalForm);
+      setValue("manufacturer", medication.manufacturer);
+      setValue("description", medication?.description);
+      setValue("stripe", medication?.stripe);
+      setValue("unitPrice", medication.unitPrice);
+      setValue("prescriptionRequired", medication.prescriptionRequired);
+    };
+    getData();
+  }, []);
+
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError(null);
 
     try {
       const id = Number.parseInt(pharmacyId, 10);
 
-      await MedicationService.createMedication({
+      await MedicationService.updateMedication(medicineId, {
         pharmacyId: id,
         name: values.name.trim(),
         dosage: values.dosage.trim(),
@@ -56,10 +75,13 @@ export default function CreateMedicinePage() {
         unitPrice: Number(values.unitPrice.replace(",", ".")),
       });
 
-      router.push(`/pharmacies/${id}/medicines`);
+      router.push(`/farmacia/${id}/medicamento/${medicineId}`);
     } catch (error) {
       setSubmitError(
-        getErrorMessage(error, "We could not save the medicine. Try again."),
+        getErrorMessage(
+          error,
+          "Problemas ao editar o medicamento. Tente novamente mais tarde.",
+        ),
       );
     }
   });
@@ -68,32 +90,29 @@ export default function CreateMedicinePage() {
     <div className="space-y-6">
       <section className="border-b-[2px] border-slate-300 py-4">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-          Medicines
+          Medicamento
         </p>
         <h2 className="mt-2 text-3xl font-semibold tracking-tight">
-          Create Medicine
+          Editar Medicamento
         </h2>
       </section>
 
       <section className="grid gap-6">
         <article className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)] sm:p-8">
           <div className="flex flex-col">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-              Medicine catalog
-            </p>
             <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-              Create medicine
+              Editar Medicamento
             </h3>
           </div>
 
           <form className="mt-6 space-y-5" onSubmit={onSubmit} noValidate>
             <div>
-              <Label htmlFor="name">Medicine name</Label>
+              <Label htmlFor="name">Nome do Medicamento</Label>
               <Input
                 id="name"
                 type="text"
                 name="name"
-                placeholder="Paracetamol 500mg"
+                placeholder="Paracetamol"
                 register={register}
                 error={errors}
               />
@@ -101,7 +120,7 @@ export default function CreateMedicinePage() {
 
             <div className="grid gap-5 sm:grid-cols-3">
               <div>
-                <Label htmlFor="dosage">Dosage</Label>
+                <Label htmlFor="dosage">Dose</Label>
                 <Input
                   id="dosage"
                   type="text"
@@ -112,7 +131,7 @@ export default function CreateMedicinePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="unitPrice">Price</Label>
+                <Label htmlFor="unitPrice">Preço</Label>
                 <Input
                   id="unitPrice"
                   type="text"
@@ -124,12 +143,12 @@ export default function CreateMedicinePage() {
                 />
               </div>
               <div>
-                <Label htmlFor="stripe">Stripe</Label>
+                <Label htmlFor="stripe">Tarja</Label>
                 <Input
                   id="stripe"
                   type="text"
                   name="stripe"
-                  placeholder="red"
+                  placeholder="Preta"
                   register={register}
                   error={errors}
                 />
@@ -138,23 +157,23 @@ export default function CreateMedicinePage() {
 
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
-                <Label htmlFor="pharmaceuticalForm">Pharmaceutical form</Label>
+                <Label htmlFor="pharmaceuticalForm">Fórmula Farmacêutica</Label>
                 <Input
                   id="pharmaceuticalForm"
                   type="text"
                   name="pharmaceuticalForm"
-                  placeholder="Tablet"
+                  placeholder="Comprimido"
                   register={register}
                   error={errors}
                 />
               </div>
               <div>
-                <Label htmlFor="manufacturer">Manufacturer</Label>
+                <Label htmlFor="manufacturer">Fabricante</Label>
                 <Input
                   id="manufacturer"
                   type="text"
                   name="manufacturer"
-                  placeholder="EMS"
+                  placeholder="OMS"
                   register={register}
                   error={errors}
                 />
@@ -162,11 +181,11 @@ export default function CreateMedicinePage() {
             </div>
 
             <div>
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">Descrição</Label>
               <Textarea
                 id="description"
                 name="description"
-                placeholder="Describe the medicine so staff can identify it quickly in the catalog."
+                placeholder="Informações adicionais sobre o medicamento"
                 register={register}
                 error={errors}
               />
@@ -193,17 +212,19 @@ export default function CreateMedicinePage() {
 
             <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
               <Link
-                href={`/pharmacies/${pharmacyId}/medicines`}
+                href={`/farmacia/${pharmacyId}/medicamento/${medicineId}`}
                 className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
               >
-                Cancel
+                Cancelar
               </Link>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? "Saving medicine..." : "Save medicine"}
+                {isSubmitting
+                  ? "Editando Medicamento..."
+                  : "Editar Medicamento"}
               </button>
             </div>
           </form>
