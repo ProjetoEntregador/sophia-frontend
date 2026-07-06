@@ -47,3 +47,24 @@ export async function getUserToken() {
 
   return cookie;
 }
+
+export async function getToken() {
+  const cookieStore = await cookies();
+
+  const cookie = cookieStore.get("token")?.value;
+
+  if (!cookie) {
+    return "";
+  }
+
+  return cookie;
+}
+
+export async function removeToken() {
+  const cookieStore = await cookies();
+
+  cookieStore.set("token", "", {
+    maxAge: 0,
+    path: "/",
+  });
+}

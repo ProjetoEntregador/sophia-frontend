@@ -12,6 +12,7 @@ import { medicineFormSchema, MedicineFormValues } from "./medicine-form.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getErrorMessage } from "@/lib/api";
 import { Checkbox } from "@/components/Checkbox";
+import { getUserToken } from "@/app/actions/auth";
 
 export default function CreateMedicinePage() {
   const router = useRouter();
@@ -40,21 +41,25 @@ export default function CreateMedicinePage() {
 
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError(null);
+    const token = await getUserToken();
 
     try {
       const id = Number.parseInt(pharmacyId, 10);
 
-      await MedicationService.createMedication({
-        pharmacyId: id,
-        name: values.name.trim(),
-        dosage: values.dosage.trim(),
-        pharmaceuticalForm: values.pharmaceuticalForm.trim(),
-        manufacturer: values.manufacturer.trim(),
-        description: values.description?.trim() || undefined,
-        stripe: values.stripe.trim() || undefined,
-        prescriptionRequired: values.prescriptionRequired,
-        unitPrice: Number(values.unitPrice.replace(",", ".")),
-      });
+      await MedicationService.createMedication(
+        {
+          pharmacyId: id,
+          name: values.name.trim(),
+          dosage: values.dosage.trim(),
+          pharmaceuticalForm: values.pharmaceuticalForm.trim(),
+          manufacturer: values.manufacturer.trim(),
+          description: values.description?.trim() || undefined,
+          stripe: values.stripe.trim() || undefined,
+          prescriptionRequired: values.prescriptionRequired,
+          unitPrice: Number(values.unitPrice.replace(",", ".")),
+        },
+        token,
+      );
 
       router.push(`/farmacia/${id}/medicamento`);
     } catch (error) {

@@ -11,12 +11,15 @@ import {
   type UserInviteFormValues,
 } from "./user-invite-form.schema";
 import { getErrorMessage } from "@/lib/api";
+import { InviteService } from "@/services/inviteService";
+import { getUserToken } from "@/app/actions/auth";
 
 type UserInviteFormProps = {
   onCancel: () => void;
+  onSave: (data: any) => void;
 };
 
-export function UserInviteForm({ onCancel }: UserInviteFormProps) {
+export function UserInviteForm({ onCancel, onSave }: UserInviteFormProps) {
   const params = useParams<{ pharmacyId: string }>();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -41,33 +44,24 @@ export function UserInviteForm({ onCancel }: UserInviteFormProps) {
     setSubmitError(null);
 
     try {
-      const response = await fetch(
-        `/api/pharmacies/${params.pharmacyId}/invites`,
+      const token = await getUserToken();
+
+      const invite = await InviteService.sendPharmacyInvite(
+        Number(params.pharmacyId),
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: values.email.trim(),
-          }),
+          email: values.email.trim(),
         },
+        token,
       );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          typeof data.message === "string"
-            ? data.message
-            : "We could not send the invite.",
-        );
-      }
-
+      console.log(invite);
+      onSave(invite.data);
       handleClose();
     } catch (error) {
       setSubmitError(
-        getErrorMessage(error, "We could not send the invite. Try again."),
+        getErrorMessage(
+          error,
+          "Problemas ao enviar o convite. Tente novamente mais tarde.",
+        ),
       );
     }
   });
@@ -77,37 +71,37 @@ export function UserInviteForm({ onCancel }: UserInviteFormProps) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-            Pharmacy members
+            Funcionários
           </p>
           <h3
             id="user-invite-modal-title"
             className="mt-2 text-2xl font-semibold tracking-tight text-slate-900"
           >
-            Invite user
+            Convidar Funcionário
           </h3>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Send a pharmacy-specific invite to a new member and define the
-            access level they will receive after accepting it.
+            Preencha o campo abaixo para convidar alguém a se tornar funcionário
+            desta farmácia
           </p>
         </div>
       </div>
 
       <form className="mt-6 space-y-5" onSubmit={onSubmit} noValidate>
         <div>
-          <Label htmlFor="email">User email</Label>
+          <Label htmlFor="email">E-mail</Label>
           <Input
             id="email"
             type="email"
             name="email"
-            placeholder="teammate@pharmacy.com"
+            placeholder="johndoe@email.com"
             register={register}
             error={errors}
           />
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
-          The invite will only be accepted by an account using the exact invited
-          email address. The current backend accepts the invite as staff access.
+          Este convite só poderá ser aceito por uma conta que use este mesmo
+          e-mail
         </div>
 
         {submitError ? (
@@ -123,14 +117,14 @@ export function UserInviteForm({ onCancel }: UserInviteFormProps) {
             disabled={isSubmitting}
             className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Cancel
+            Cancelar
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
             className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Sending invite..." : "Send invite"}
+            {isSubmitting ? "Convidando..." : "Convidar"}
           </button>
         </div>
       </form>

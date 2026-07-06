@@ -140,13 +140,6 @@ export default function RegisterForm() {
             <div className="h-px flex-1 bg-slate-200" />
           </div>
 
-          <button
-            type="button"
-            className="cursor-pointer inline-flex w-full items-center justify-center rounded-lg border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
-          >
-            Continuar com o Google
-          </button>
-
           <p className="mt-6 text-center text-sm text-slate-600">
             Já possui uma conta?{" "}
             <Link

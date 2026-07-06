@@ -1,5 +1,5 @@
 import { getAuthorizedConfig, pharmacyApi } from "@/lib/api";
-import { ApiResponse } from "@/types/api";
+import { ApiList, ApiResponse } from "@/types/api";
 import {
   CreatePharmacyPayload,
   NearbyPharmaciesQuery,
@@ -10,9 +10,12 @@ import {
 } from "@/types/pharmacy";
 
 export class PharmacyService {
-  static async listPharmacies(token: string) {
-    const response = await pharmacyApi.get<ApiResponse<PharmacyListItem[]>>(
-      "/pharmacy/list",
+  static async listPharmacies(size: number, page: number, token: string) {
+    const offset = size * (page - 1);
+    const response = await pharmacyApi.get<
+      ApiResponse<ApiList<PharmacyListItem>>
+    >(
+      `/pharmacy/list?offset=${offset}&size=${size}`,
       getAuthorizedConfig(token),
     );
     return response.data;
@@ -63,4 +66,12 @@ export class PharmacyService {
     );
     return response.data;
   }
+
+  // static async deletePermission() {
+  //   const response = await pharmacyApi.delete<ApiResponse<null>>(
+  //     `/pharmacy/${id}/permissions/${permissionId}/delete`,
+  //     getAuthorizedConfig(token),
+  //   );
+  //   return response.data;
+  // }
 }

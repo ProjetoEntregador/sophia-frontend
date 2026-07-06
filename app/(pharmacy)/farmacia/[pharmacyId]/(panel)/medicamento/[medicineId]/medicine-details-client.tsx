@@ -9,26 +9,44 @@ import { useState } from "react";
 import { MedicineBatchForm } from "./medicine-batch-form";
 import { MedicationService } from "@/services/medicationService";
 import Link from "next/link";
+import { getUserToken } from "@/app/actions/auth";
 
 type MedicineDetailsClientProps = {
   medicine: Medication;
   initialBatches: MedicationBatch[];
+  total: number;
 };
 
 export function MedicineDetailsClient({
   medicine,
   initialBatches,
+  total,
 }: MedicineDetailsClientProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { currentItens, addItem, editItem, removeItem, Pagination } = useTable({
     initialItens: initialBatches,
-    pageSize: 4,
+    pageSize: 6,
+    totalItens: total,
+    fetch: async (page) => {
+      const token = await getUserToken();
+
+      const res = await MedicationService.listMedicationBatchesByMedicationId(
+        medicine.id,
+        token,
+        (page - 1) * 6,
+        6,
+      );
+
+      return res.data;
+    },
   });
   const { openModal, closeModal, Modal } = useModal();
 
   async function removeBatch(id: string) {
+    const token = await getUserToken();
+
+    await MedicationService.deleteMedicationBatch(id, token);
     removeItem(id);
-    await MedicationService.deleteMedicationBatch(id);
   }
 
   return (
@@ -46,7 +64,7 @@ export function MedicineDetailsClient({
           </p>
         ) : null}
 
-        <section className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
+        <section className="grid gap-4">
           <article className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
@@ -86,24 +104,6 @@ export function MedicineDetailsClient({
               />
             </dl>
           </article>
-
-          <div className="grid gap-4">
-            <MetricCard
-              label="Total de Lotes"
-              value={String(currentItens.length).padStart(2, "0")}
-              detail="Total de lotes do medicamento"
-            />
-            <MetricCard
-              label="Quantidade"
-              value={String(sumBatchQuantities(currentItens))}
-              detail="Quantidadae total do medicamento"
-            />
-            <MetricCard
-              label="Próxima Validade"
-              value={getNextExpiryLabel(currentItens)}
-              detail="Validade mais próxima de lote do medicamento"
-            />
-          </div>
         </section>
 
         <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
@@ -159,12 +159,17 @@ export function MedicineDetailsClient({
           medicationId={medicine.id}
           onCancel={closeModal}
           onSaved={async (batchData) => {
-            const batch = await MedicationService.createMedicationBatch({
-              batchNumber: batchData.batchCode,
-              expirationDate: batchData.expirationDate,
-              medicationId: batchData.medicationId,
-              quantity: batchData.quantity,
-            });
+            const token = await getUserToken();
+
+            const batch = await MedicationService.createMedicationBatch(
+              {
+                batchNumber: batchData.batchCode,
+                expirationDate: batchData.expirationDate,
+                medicationId: batchData.medicationId,
+                quantity: batchData.quantity,
+              },
+              token,
+            );
             addItem(batch);
             closeModal();
           }}
@@ -175,47 +180,12 @@ export function MedicineDetailsClient({
   );
 }
 
-function sumBatchQuantities(batches: MedicationBatch[]) {
-  return batches.reduce((sum, batch) => sum + batch.quantity, 0);
-}
-
-function getNextExpiryLabel(batches: MedicationBatch[]) {
-  const sortedDates = batches
-    .map((batch) => batch.expirationDate)
-    .filter((value) => Number.isFinite(Date.parse(value)))
-    .sort((left, right) => Date.parse(left) - Date.parse(right));
-
-  if (!sortedDates.length) {
-    return "Not informed";
-  }
-
-  return new Date(sortedDates[0]).toLocaleDateString("en-CA");
-}
-
 function InfoItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl border border-slate-100 px-4 py-4">
       <dt className="text-sm font-medium text-slate-500">{label}</dt>
       <dd className="mt-2 text-base font-semibold text-slate-900">{value}</dd>
     </div>
-  );
-}
-
-function MetricCard({
-  label,
-  value,
-  detail,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-}) {
-  return (
-    <article className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.05)]">
-      <p className="text-sm font-medium text-slate-500">{label}</p>
-      <p className="mt-4 text-3xl font-semibold tracking-tight">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{detail}</p>
-    </article>
   );
 }
 
@@ -307,12 +277,18 @@ function BatchItem({
           }}
           onCancel={edit.closeModal}
           onSaved={async (batchData) => {
-            await MedicationService.updateMedicationBatch(initialBatch.id, {
-              batchNumber: batchData.batchCode,
-              expirationDate: batchData.expirationDate,
-              medicationId: batchData.medicationId,
-              quantity: batchData.quantity,
-            });
+            const token = await getUserToken();
+
+            await MedicationService.updateMedicationBatch(
+              initialBatch.id,
+              {
+                batchCode: batchData.batchCode,
+                expirationDate: batchData.expirationDate,
+                medicationId: batchData.medicationId,
+                quantity: batchData.quantity,
+              },
+              token,
+            );
 
             const newBatch = {
               ...batch,
@@ -321,6 +297,8 @@ function BatchItem({
               medicationId: batchData.medicationId,
               quantity: batchData.quantity,
             };
+
+            console.log(newBatch);
 
             setBatch(newBatch);
             onEdit(newBatch, batch.id);

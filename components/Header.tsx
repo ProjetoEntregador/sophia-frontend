@@ -23,7 +23,7 @@ export function Header() {
             router.push("/entrar");
           }}
         >
-          {auth.user.name}
+          {auth.user.username}
         </p>
       </div>
     </header>

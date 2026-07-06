@@ -20,9 +20,6 @@ export function Card({ id, name, phone, description }: CardProps) {
           </p>
           <h2 className="mt-2 text-xl font-semibold tracking-tight">{name}</h2>
         </div>
-        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
-          {phone}
-        </span>
       </div>
 
       <p className="my-4 text-sm leading-6 text-slate-600">{description}</p>

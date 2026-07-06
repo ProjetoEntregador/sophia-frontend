@@ -1,3 +1,5 @@
+import { Permission } from "./permission";
+
 export type RegisterPayload = {
   username: string;
   email: string;
@@ -15,7 +17,7 @@ export type GoogleLoginPayload = {
 };
 
 export type User = {
-  id: string;
+  username: string;
   email: string;
-  name: string;
+  permissions: Permission[];
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { getUserToken } from "@/app/actions/auth";
 import { ConfirmDeleteModal } from "@/components/ConfirmDeleteModal";
 import { Table } from "@/components/Table";
 import { useModal } from "@/hooks/useModal";
@@ -11,20 +12,37 @@ import Link from "next/link";
 type PharmacyMedicinesClientProps = {
   pharmacyId: string;
   initialMedicines: Medication[];
+  total: number;
 };
 
 export function PharmacyMedicinesClient({
   pharmacyId,
   initialMedicines,
+  total,
 }: PharmacyMedicinesClientProps) {
   const { currentItens, removeItem, Pagination } = useTable({
     initialItens: initialMedicines,
-    pageSize: 4,
+    pageSize: 6,
+    totalItens: total,
+    fetch: async (page) => {
+      const token = await getUserToken();
+
+      const res = await MedicationService.listMedicationsByPharmacyId(
+        Number(pharmacyId),
+        (page - 1) * 6,
+        6,
+        token,
+      );
+
+      return res.data;
+    },
   });
 
   async function removeMedicine(id: string) {
+    const token = await getUserToken();
+
+    await MedicationService.deleteMedication(id, token);
     removeItem(id);
-    await MedicationService.deleteMedication(id);
   }
 
   return (

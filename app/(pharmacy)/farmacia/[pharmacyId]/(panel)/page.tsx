@@ -1,9 +1,9 @@
 import { getUserToken } from "@/app/actions/auth";
-import { MedicationService } from "@/services/medicationService";
 import { PharmacyService } from "@/services/pharmacyService";
 import { notFound } from "next/navigation";
 import { ShowLocation } from "./show-location";
 import Link from "next/link";
+import { PharmacyRemoveClient } from "./pharmacy-remove-client";
 
 type PharmacyOverviewPageProps = {
   params: Promise<{ pharmacyId: string }>;
@@ -17,9 +17,8 @@ export default async function PharmacyOverviewPage({
 
   const token = await getUserToken();
 
-  const [pharmacyResponse, medicines] = await Promise.all([
+  const [pharmacyResponse] = await Promise.all([
     PharmacyService.getPharmacyById(id, token),
-    MedicationService.listMedicationsByPharmacyId(id),
   ]);
   const pharmacy = pharmacyResponse.data;
 
@@ -27,40 +26,10 @@ export default async function PharmacyOverviewPage({
     notFound();
   }
 
-  const overviewMetrics = [
-    {
-      label: "Medicamentos",
-      value: String(medicines.length).padStart(2, "0"),
-      detail: "Total de medicamentos cadastrados.",
-    },
-    {
-      label: "Funcionários",
-      value: 18,
-      detail: "Total de funcionários.",
-    },
-  ];
-
   return (
     <div className="space-y-6">
       <section className="border-b-[2px] border-slate-300 py-4">
         <h2 className="text-3xl font-semibold tracking-tight">Dashboard</h2>
-      </section>
-
-      <section className="grid gap-4 md:grid-cols-2">
-        {overviewMetrics.map((metric) => (
-          <article
-            key={metric.label}
-            className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.05)]"
-          >
-            <p className="text-sm font-medium text-slate-500">{metric.label}</p>
-            <p className="mt-4 text-4xl font-semibold tracking-tight">
-              {metric.value}
-            </p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              {metric.detail}
-            </p>
-          </article>
-        ))}
       </section>
 
       <section className="gap-6">
@@ -103,6 +72,7 @@ export default async function PharmacyOverviewPage({
           </div>
 
           <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <PharmacyRemoveClient pharmacyId={id} />
             <Link
               href={`/farmacia/${pharmacy.id}/editar`}
               className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-purple-500"
