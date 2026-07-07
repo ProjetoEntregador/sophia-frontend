@@ -1,6 +1,6 @@
 import { api } from "@/lib/api";
-import { RegisterFormValues } from "@/app/register/register.schema";
-import { LoginFormValues } from "@/app/login/login.schema";
+import { RegisterFormValues } from "@/app/(auth)/register/register.schema";
+import { LoginFormValues } from "@/app/(auth)/login/login.schema";
 
 export class AuthService {
   static async registerAccount(values: RegisterFormValues) {
