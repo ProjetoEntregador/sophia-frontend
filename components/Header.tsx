@@ -1,6 +1,6 @@
 export function Header() {
   return (
-    <header className="border border-slate-200/80 bg-white/85 py-5 shadow-xs backdrop-blur">
+    <header className="border border-slate-200/80 bg-white/85 py-5 shadow-xs backdrop-blur sticky top-0">
       <div className="mx-auto max-w-7xl px-8 flex justify-between items-center lg:flex-row lg:justify-between">
         <h1 className="text-md font-semibold uppercase tracking-[0.24em] text-emerald-700">
           Sophia Pharmacy Workspace
