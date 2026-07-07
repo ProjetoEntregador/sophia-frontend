@@ -2,6 +2,7 @@
 
 import { getUserToken } from "@/app/actions/auth";
 import { ConfirmDeleteModal } from "@/components/ConfirmDeleteModal";
+import { NotFound } from "@/components/NotFound";
 import { Table } from "@/components/Table";
 import { useModal } from "@/hooks/useModal";
 import { useTable } from "@/hooks/useTable";
@@ -72,14 +73,18 @@ export function PharmacyMedicinesClient({
             </div>
           </Table.Header>
           <Table.Body>
-            {currentItens.map((medicine) => (
-              <Item
-                key={medicine.id}
-                medicine={medicine}
-                pharmacyId={pharmacyId}
-                onDelete={() => removeMedicine(medicine.id)}
-              />
-            ))}
+            {currentItens.length === 0 ? (
+              <NotFound text="Nenhum medicamento encontrado." />
+            ) : (
+              currentItens.map((medicine) => (
+                <Item
+                  key={medicine.id}
+                  medicine={medicine}
+                  pharmacyId={pharmacyId}
+                  onDelete={() => removeMedicine(medicine.id)}
+                />
+              ))
+            )}
           </Table.Body>
           <Pagination />
         </Table.Wrapper>

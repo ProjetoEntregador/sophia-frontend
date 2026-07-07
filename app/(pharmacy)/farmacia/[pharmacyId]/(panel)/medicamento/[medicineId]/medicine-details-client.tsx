@@ -10,6 +10,7 @@ import { MedicineBatchForm } from "./medicine-batch-form";
 import { MedicationService } from "@/services/medicationService";
 import Link from "next/link";
 import { getUserToken } from "@/app/actions/auth";
+import { NotFound } from "@/components/NotFound";
 
 type MedicineDetailsClientProps = {
   medicine: Medication;
@@ -25,7 +26,7 @@ export function MedicineDetailsClient({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const { currentItens, addItem, editItem, removeItem, Pagination } = useTable({
     initialItens: initialBatches,
-    pageSize: 6,
+    pageSize: 1,
     totalItens: total,
     fetch: async (page) => {
       const token = await getUserToken();
@@ -33,8 +34,8 @@ export function MedicineDetailsClient({
       const res = await MedicationService.listMedicationBatchesByMedicationId(
         medicine.id,
         token,
-        (page - 1) * 6,
-        6,
+        (page - 1) * 1,
+        1,
       );
 
       return res.data;
@@ -137,15 +138,19 @@ export function MedicineDetailsClient({
               </div>
             </Table.Header>
             <Table.Body>
-              {currentItens.map((batch) => (
-                <BatchItem
-                  key={batch.id}
-                  medicineId={medicine.id}
-                  initialBatch={batch}
-                  onEdit={editItem}
-                  onDelete={() => removeBatch(batch.id)}
-                />
-              ))}
+              {currentItens.length === 0 ? (
+                <NotFound text="Nenhum lote encontrado." />
+              ) : (
+                currentItens.map((batch) => (
+                  <BatchItem
+                    key={batch.id}
+                    medicineId={medicine.id}
+                    initialBatch={batch}
+                    onEdit={editItem}
+                    onDelete={() => removeBatch(batch.id)}
+                  />
+                ))
+              )}
             </Table.Body>
             <Pagination />
           </Table.Wrapper>

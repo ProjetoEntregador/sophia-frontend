@@ -8,6 +8,7 @@ import { useModal } from "@/hooks/useModal";
 import { PharmacyMember } from "./page";
 import { InviteService } from "@/services/inviteService";
 import { getUserToken } from "@/app/actions/auth";
+import { NotFound } from "@/components/NotFound";
 
 const statusStyles: Record<PharmacyMember["status"], string> = {
   Active: "bg-purple-50 text-purple-700",
@@ -77,14 +78,18 @@ export function UserInviteClient({
             </Table.Header>
 
             <Table.Body>
-              {currentItens.map((member) => (
-                <Item
-                  key={member.id}
-                  pharmacyId={pharmacyId}
-                  onRemove={removeItem}
-                  {...member}
-                />
-              ))}
+              {currentItens.length === 0 ? (
+                <NotFound text="Nenhum funcionário encontrado." />
+              ) : (
+                currentItens.map((member) => (
+                  <Item
+                    key={member.id}
+                    pharmacyId={pharmacyId}
+                    onRemove={removeItem}
+                    {...member}
+                  />
+                ))
+              )}
             </Table.Body>
             <Pagination />
           </Table.Wrapper>

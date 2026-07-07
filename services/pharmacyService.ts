@@ -10,8 +10,7 @@ import {
 } from "@/types/pharmacy";
 
 export class PharmacyService {
-  static async listPharmacies(size: number, page: number, token: string) {
-    const offset = size * (page - 1);
+  static async listPharmacies(offset: number, size: number, token: string) {
     const response = await pharmacyApi.get<
       ApiResponse<ApiList<PharmacyListItem>>
     >(

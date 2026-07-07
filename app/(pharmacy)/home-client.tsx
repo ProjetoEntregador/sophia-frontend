@@ -5,20 +5,25 @@ import { PharmacyListItem } from "@/types/pharmacy";
 import Link from "next/link";
 import { getUserToken } from "../actions/auth";
 import { PharmacyService } from "@/services/pharmacyService";
+import { NotFound } from "@/components/NotFound";
 
 type HomeClientProps = {
   pharmacies: PharmacyListItem[];
-  totalItens: number;
+  total: number;
 };
 
-export function HomeClient({ pharmacies, totalItens }: HomeClientProps) {
+export function HomeClient({ pharmacies, total }: HomeClientProps) {
   const { currentItens, Pagination } = useTable({
     initialItens: pharmacies,
-    totalItens,
+    totalItens: total,
     pageSize: 9,
     fetch: async (page: number) => {
       const token = await getUserToken();
-      const response = await PharmacyService.listPharmacies(9, page, token);
+      const response = await PharmacyService.listPharmacies(
+        (page - 1) * 9,
+        9,
+        token,
+      );
       return response.data?.content as PharmacyListItem[];
     },
   });
@@ -35,20 +40,28 @@ export function HomeClient({ pharmacies, totalItens }: HomeClientProps) {
           </Link>
         </div>
 
-        <section className="w-full py-8">
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {currentItens.map((pharmacy) => (
-              <Card
-                key={pharmacy.id}
-                id={pharmacy.id}
-                name={pharmacy.name}
-                phone={pharmacy.phone}
-                description="Acesse o painel para gerenciar os dados da farmácia, medicamentos e funcionários."
-              />
-            ))}
-          </div>
-        </section>
-        <Pagination />
+        {currentItens.length === 0 ? (
+          <section className="w-full py-8">
+            <NotFound text="Nenhuma farmácia encontrada." />
+          </section>
+        ) : (
+          <>
+            <section className="w-full py-8">
+              <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {currentItens.map((pharmacy) => (
+                  <Card
+                    key={pharmacy.id}
+                    id={pharmacy.id}
+                    name={pharmacy.name}
+                    phone={pharmacy.phone}
+                    description="Acesse o painel para gerenciar os dados da farmácia, medicamentos e funcionários."
+                  />
+                ))}
+              </div>
+            </section>
+            <Pagination />
+          </>
+        )}
       </div>
     </main>
   );

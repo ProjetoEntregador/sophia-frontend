@@ -68,6 +68,11 @@ export function useTable<T extends { id: unknown }>({
     const newItems = items.filter((item) => item.id != id);
     setItems(newItems);
     setCurrentTotalItens((pre) => pre - 1);
+
+    const startIndex = (currentPage - 1) * pageSize;
+    if (!newItems[startIndex]) {
+      setCurrentPage((page) => Math.max(1, page - 1));
+    }
   };
 
   return {

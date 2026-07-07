@@ -17,7 +17,7 @@ export default async function MedicinePage({ params }: MedicinePageProps) {
       medicineId,
       token,
       0,
-      6,
+      1,
     ),
   ]);
 
