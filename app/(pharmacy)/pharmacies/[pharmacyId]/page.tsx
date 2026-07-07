@@ -27,7 +27,7 @@ export default async function PharmacyOverviewPage() {
     <div className="space-y-6">
       <section className="border-b-[2px] border-slate-300 py-4">
         <h2 className="text-3xl font-semibold tracking-tight">
-          Pharmacy overview
+          Pharmacy Overview
         </h2>
       </section>
 
@@ -35,7 +35,7 @@ export default async function PharmacyOverviewPage() {
         {overviewMetrics.map((metric) => (
           <article
             key={metric.label}
-            className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.05)]"
+            className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.05)]"
           >
             <p className="text-sm font-medium text-slate-500">{metric.label}</p>
             <p className="mt-4 text-4xl font-semibold tracking-tight">
@@ -49,7 +49,7 @@ export default async function PharmacyOverviewPage() {
       </section>
 
       <section className="gap-6">
-        <article className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
+        <article className="rounded-[1rem] border border-slate-200 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
             Recent activity
           </p>
