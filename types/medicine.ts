@@ -1,17 +1,45 @@
-export type Medicine = {
+export type Medication = {
   id: string;
+  pharmacyId: number;
   name: string;
-  status: string;
-  notes: string;
-  category: string;
-  presentation: string;
+  dosage: string;
+  pharmaceuticalForm: string;
+  manufacturer: string;
+  description: string | null;
+  stripe: string | null;
+  prescriptionRequired: boolean;
+  unitPrice: string;
+  createdAt: string;
 };
 
-export type MedicineBatchStatus = "Ready" | "Low stock" | "Reserved";
+export type CreateMedicationPayload = {
+  pharmacyId: number;
+  name: string;
+  dosage: string;
+  pharmaceuticalForm: string;
+  manufacturer: string;
+  description?: string;
+  stripe?: string;
+  prescriptionRequired: boolean;
+  unitPrice: number;
+};
 
-export type MedicineBatch = {
+export type UpdateMedicationPayload = Partial<CreateMedicationPayload>;
+
+export type MedicationBatch = {
   id: string;
-  code: string;
-  quantity: string;
-  expiresAt: string;
+  medicationId: string;
+  batchCode: string;
+  quantity: number;
+  expirationDate: string;
+  createdAt: string;
 };
+
+export type CreateMedicationBatchPayload = {
+  medicationId: string;
+  batchNumber: string;
+  quantity: number;
+  expirationDate: string;
+};
+
+export type UpdateMedicationBatchPayload = Partial<CreateMedicationBatchPayload>;

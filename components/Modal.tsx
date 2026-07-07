@@ -30,7 +30,7 @@ export function Modal({ isOpen, closeModal, children }: ModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 py-8"
+      className="fixed inset-0 z-1000 flex items-center justify-center bg-slate-950/45 px-4 py-8"
       role="dialog"
       aria-modal="true"
     >

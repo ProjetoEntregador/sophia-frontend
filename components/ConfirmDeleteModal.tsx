@@ -31,7 +31,7 @@ export function ConfirmDeleteModal({
     try {
       await onConfirm();
     } catch {
-      setSubmitError("We could not complete this action. Try again.");
+      setSubmitError("Falha ao realizar a ação. Tente novamente mais tarde.");
       setIsSubmitting(false);
     }
   };
@@ -60,14 +60,14 @@ export function ConfirmDeleteModal({
         </p>
       ) : null}
 
-      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         <button
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
           className="inline-flex items-center justify-center rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Cancel
+          Cancelar
         </button>
         <button
           type="button"
@@ -75,7 +75,7 @@ export function ConfirmDeleteModal({
           disabled={isSubmitting}
           className="inline-flex items-center justify-center rounded-lg bg-rose-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "Processing..." : confirmLabel}
+          {isSubmitting ? "Processando..." : confirmLabel}
         </button>
       </div>
     </>

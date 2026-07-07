@@ -1,24 +1,42 @@
-import { api } from "@/lib/api";
-import { RegisterFormValues } from "@/app/(auth)/register/register.schema";
-import { LoginFormValues } from "@/app/(auth)/login/login.schema";
+import { getAuthorizedConfig, pharmacyApi } from "@/lib/api";
+import { ApiResponse } from "@/types/api";
+import {
+  GoogleLoginPayload,
+  LoginPayload,
+  RegisterPayload,
+  User
+} from "@/types/auth";
 
 export class AuthService {
-  static async registerAccount(values: RegisterFormValues) {
-    const response = await api.post("/auth/register", {
-      fullName: values.fullName,
-      email: values.email,
-      password: values.password,
-    });
-
-    return response.data as unknown;
+  static async registerAccount(body: RegisterPayload) {
+    const response = await pharmacyApi.post<ApiResponse<null>>(
+      "/auth/registration",
+      body,
+    );
+    return response.data;
   }
 
-  static async loginAccount(values: LoginFormValues) {
-    const response = await api.post("/auth/login", {
-      email: values.email,
-      password: values.password,
-    });
+  static async loginAccount(body: LoginPayload) {
+    const response = await pharmacyApi.post<ApiResponse<string>>(
+      "/auth/login",
+      body,
+    );
+    return response.data;
+  }
 
-    return response.data as unknown;
+  static async loginGoogle(body: GoogleLoginPayload) {
+    const response = await pharmacyApi.post<ApiResponse<string>>(
+      "/auth/google",
+      body,
+    );
+    return response.data;
+  }
+
+  static async me(token: string) {
+    const response = await pharmacyApi.get<ApiResponse<User>>(
+      "/auth/info",
+      getAuthorizedConfig(token),
+    );
+    return response.data;
   }
 }
