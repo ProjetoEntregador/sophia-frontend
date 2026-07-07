@@ -1,11 +1,14 @@
 "use client";
 import { Table } from "@/components/Table";
 import { useTable } from "@/hooks/useTable";
+import { PharmacyMembership } from "@/types/pharmacy";
+import { UserInviteForm } from "./user-invite-form";
+import { useModal } from "@/hooks/useModal";
 
 type PharmacyMember = {
   id: string;
   email: string;
-  role: "admin" | "staff";
+  role: PharmacyMembership["role"];
   status: "Active" | "Invited" | "Pending removal";
   lastAccess: string;
 };
@@ -53,48 +56,60 @@ const statusStyles: Record<PharmacyMember["status"], string> = {
 };
 
 export default function PharmacyUsersPage() {
+  const { openModal, closeModal, Modal } = useModal();
   const { currentItens, Pagination } = useTable({
-    medicines: members,
+    initialItens: members,
     pageSize: 4,
   });
 
   return (
-    <div className="space-y-6">
-      <section className="border-b-[2px] border-slate-300 py-4">
-        <h2 className="text-3xl font-semibold tracking-tight">
-          Pharmacy Users
-        </h2>
-      </section>
+    <>
+      <div className="space-y-6">
+        <section className="border-b-[2px] border-slate-300 py-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+            Pharmacy members
+          </p>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight">
+            Pharmacy Users
+          </h2>
+        </section>
 
-      <section className="grid gap-6">
-        <Table.Wrapper>
-          <Table.Header>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
-                Pharmacy members
-              </p>
-              <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-                Member list
-              </h3>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                className="ml-auto inline-flex items-center justify-center rounded-[1rem] border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-              >
-                Invite user
-              </button>
-            </div>
-          </Table.Header>
-          <Table.Body>
-            {currentItens.map((member) => (
-              <Item key={member.id} {...member} />
-            ))}
-          </Table.Body>
-          <Pagination />
-        </Table.Wrapper>
-      </section>
-    </div>
+        <section className="grid gap-6">
+          <Table.Wrapper>
+            <Table.Header>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">
+                  Pharmacy members
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold tracking-tight">
+                  Member list
+                </h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={openModal}
+                  className="ml-auto inline-flex items-center justify-center rounded-[1rem] border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                >
+                  Invite user
+                </button>
+              </div>
+            </Table.Header>
+
+            <Table.Body>
+              {currentItens.map((member) => (
+                <Item key={member.id} {...member} />
+              ))}
+            </Table.Body>
+            <Pagination />
+          </Table.Wrapper>
+        </section>
+      </div>
+
+      <Modal closeModal={closeModal}>
+        <UserInviteForm onCancel={closeModal} />
+      </Modal>
+    </>
   );
 }
 

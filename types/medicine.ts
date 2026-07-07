@@ -13,8 +13,5 @@ export type MedicineBatch = {
   id: string;
   code: string;
   quantity: string;
-  receivedAt: string;
   expiresAt: string;
-  status: MedicineBatchStatus;
-  note: string;
 };

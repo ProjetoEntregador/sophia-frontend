@@ -1,7 +1,9 @@
 "use client";
+import Link from "next/link";
 import { Table } from "@/components/Table";
 import { useTable } from "@/hooks/useTable";
 import { Medicine } from "@/types/medicine";
+import { useParams } from "next/navigation";
 
 const medicines: Medicine[] = [
   {
@@ -39,7 +41,12 @@ const medicines: Medicine[] = [
 ];
 
 export default function PharmacyMedicinesPage() {
-  const { currentItens, Pagination } = useTable({ medicines, pageSize: 4 });
+  const params = useParams<{ pharmacyId: string }>();
+  const { pharmacyId } = params;
+  const { currentItens, Pagination } = useTable({
+    initialItens: medicines,
+    pageSize: 4,
+  });
 
   return (
     <div className="space-y-6">
@@ -61,12 +68,12 @@ export default function PharmacyMedicinesPage() {
               </h3>
             </div>
             <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
+              <Link
+                href={`/pharmacies/${pharmacyId}/medicines/create`}
                 className="ml-auto inline-flex items-center justify-center rounded-[1rem] px-5 py-3 text-sm font-semibold text-slate-700 transition border-[1px] border-slate-200 hover:bg-slate-100"
               >
                 Add medicine
-              </button>
+              </Link>
             </div>
           </Table.Header>
           <Table.Body>

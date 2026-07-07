@@ -3,21 +3,21 @@ import { Table } from "@/components/Table";
 import { useMemo, useState } from "react";
 
 type useTableProps<T> = {
-  medicines: T[];
+  initialItens: T[];
   pageSize: number;
 };
 
-export function useTable<T>({ medicines, pageSize }: useTableProps<T>) {
+export function useTable<T>({ initialItens, pageSize }: useTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.max(1, Math.ceil(medicines.length / pageSize));
+  const totalPages = Math.max(1, Math.ceil(initialItens.length / pageSize));
   const canGoPrevious = currentPage > 1;
   const canGoNext = currentPage < totalPages;
 
   const visibleMedicines = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
-    return medicines.slice(startIndex, startIndex + pageSize);
-  }, [currentPage]);
+    return initialItens.slice(startIndex, startIndex + pageSize);
+  }, [currentPage, initialItens, pageSize]);
 
   const goToPreviousPage = () => {
     if (canGoPrevious) {
