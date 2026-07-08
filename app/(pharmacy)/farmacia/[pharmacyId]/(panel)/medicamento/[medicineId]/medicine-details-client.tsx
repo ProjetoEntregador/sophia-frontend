@@ -97,7 +97,7 @@ export function MedicineDetailsClient({
               <InfoItem label="Fabricante" value={medicine.manufacturer} />
               <InfoItem
                 label="Tarja"
-                value={medicine.stripe || "Not informed"}
+                value={medicine.stripe || "Não informado"}
               />
               <InfoItem
                 label="Data de Criação"

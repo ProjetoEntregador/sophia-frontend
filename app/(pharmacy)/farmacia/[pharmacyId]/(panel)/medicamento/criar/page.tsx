@@ -53,7 +53,7 @@ export default function CreateMedicinePage() {
           pharmaceuticalForm: values.pharmaceuticalForm.trim(),
           manufacturer: values.manufacturer.trim(),
           description: values.description?.trim() || undefined,
-          stripe: values.stripe.trim() || undefined,
+          stripe: values.stripe?.trim() || undefined,
           prescriptionRequired: values.prescriptionRequired,
           unitPrice: Number(values.unitPrice.replace(",", ".")),
         },
