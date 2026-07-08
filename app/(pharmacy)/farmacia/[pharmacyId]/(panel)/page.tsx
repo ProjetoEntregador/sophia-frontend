@@ -2,8 +2,8 @@ import { getUserToken } from "@/app/actions/auth";
 import { PharmacyService } from "@/services/pharmacyService";
 import { notFound } from "next/navigation";
 import { ShowLocation } from "./show-location";
-import Link from "next/link";
 import { PharmacyRemoveClient } from "./pharmacy-remove-client";
+import Link from "next/link";
 
 type PharmacyOverviewPageProps = {
   params: Promise<{ pharmacyId: string }>;
@@ -16,11 +16,8 @@ export default async function PharmacyOverviewPage({
   const id = Number.parseInt(pharmacyId, 10);
 
   const token = await getUserToken();
-
-  const [pharmacyResponse] = await Promise.all([
-    PharmacyService.getPharmacyById(id, token),
-  ]);
-  const pharmacy = pharmacyResponse.data;
+  const response = await PharmacyService.getPharmacyById(id, token);
+  const pharmacy = response.data;
 
   if (!pharmacy) {
     notFound();

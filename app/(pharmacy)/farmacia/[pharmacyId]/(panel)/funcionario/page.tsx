@@ -7,7 +7,7 @@ export type PharmacyMember = {
   id: string;
   email: string;
   role: PharmacyMembership["role"];
-  status: "Active" | "Invited" | "Pending removal";
+  status: string;
   lastAccess: string;
 };
 
@@ -20,14 +20,14 @@ export default async function PharmacyUsersPage({
 }: PharmacyUsersPageProps) {
   const { pharmacyId } = await params;
   const id = Number.parseInt(pharmacyId, 10);
-  const token = await getUserToken();
 
+  const token = await getUserToken();
   const invites = await InviteService.listInvites(id, token, 6, 0);
 
   return (
     <UserInviteClient
-      members={invites.data?.content}
-      total={invites.data?.totalElements}
+      members={invites.data.content}
+      total={invites.data.totalElements}
       pharmacyId={id}
     />
   );

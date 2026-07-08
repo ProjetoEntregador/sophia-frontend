@@ -13,7 +13,6 @@ export default async function PharmacyMedicinesPage({
   const id = Number.parseInt(pharmacyId, 10);
 
   const token = await getUserToken();
-
   const medicines = await MedicationService.listMedicationsByPharmacyId(
     id,
     0,

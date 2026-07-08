@@ -55,8 +55,8 @@ export default function EditMedicinePage() {
       setValue("dosage", medication.dosage);
       setValue("pharmaceuticalForm", medication.pharmaceuticalForm);
       setValue("manufacturer", medication.manufacturer);
-      setValue("description", medication?.description);
-      setValue("stripe", medication?.stripe);
+      setValue("description", medication.description ?? "");
+      setValue("stripe", medication.stripe ?? "");
       setValue("unitPrice", medication.unitPrice);
       setValue("prescriptionRequired", medication.prescriptionRequired);
     };

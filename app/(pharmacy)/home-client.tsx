@@ -1,4 +1,5 @@
 "use client";
+
 import { Card } from "@/components/Card";
 import { useTable } from "@/hooks/useTable";
 import { PharmacyListItem } from "@/types/pharmacy";

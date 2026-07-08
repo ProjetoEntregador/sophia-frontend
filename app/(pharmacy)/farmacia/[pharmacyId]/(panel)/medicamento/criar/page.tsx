@@ -18,7 +18,6 @@ export default function CreateMedicinePage() {
   const router = useRouter();
   const params = useParams<{ pharmacyId: string }>();
   const { pharmacyId } = params;
-
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
