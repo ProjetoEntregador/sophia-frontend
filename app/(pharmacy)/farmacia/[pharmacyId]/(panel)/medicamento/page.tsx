@@ -23,8 +23,8 @@ export default async function PharmacyMedicinesPage({
   return (
     <PharmacyMedicinesClient
       pharmacyId={pharmacyId}
-      initialMedicines={medicines.data}
-      total={medicines.total}
+      initialMedicines={medicines.data ?? []}
+      total={medicines.total ?? 0}
     />
   );
 }
