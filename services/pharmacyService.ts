@@ -1,40 +1,37 @@
 import { getAuthorizedConfig, pharmacyApi } from "@/lib/api";
 import { ApiList, ApiResponse } from "@/types/api";
 import {
-  CreatePharmacyPayload,
-  NearbyPharmaciesQuery,
-  NearbyPharmacy,
-  PharmacyDetail,
+  CreatePharmacyPayload, PharmacyDetail,
   PharmacyListItem,
-  UpdatePharmacyPayload,
+  UpdatePharmacyPayload
 } from "@/types/pharmacy";
 
 export class PharmacyService {
   static async listPharmacies(offset: number, size: number, token: string) {
-    const response = await pharmacyApi.get<
+    const { data } = await pharmacyApi.get<
       ApiResponse<ApiList<PharmacyListItem>>
     >(
       `/pharmacy/list?offset=${offset}&size=${size}`,
       getAuthorizedConfig(token),
     );
-    return response.data;
+    return data;
   }
 
   static async getPharmacyById(id: number, token: string) {
-    const response = await pharmacyApi.get<ApiResponse<PharmacyDetail>>(
+    const { data } = await pharmacyApi.get<ApiResponse<PharmacyDetail>>(
       `/pharmacy/${id}`,
       getAuthorizedConfig(token),
     );
-    return response.data;
+    return data;
   }
 
   static async createPharmacy(body: CreatePharmacyPayload, token: string) {
-    const response = await pharmacyApi.post<ApiResponse<PharmacyDetail>>(
+    const { data } = await pharmacyApi.post<ApiResponse<PharmacyDetail>>(
       "/pharmacy/create",
       body,
       getAuthorizedConfig(token),
     );
-    return response.data;
+    return data;
   }
 
   static async updatePharmacy(
@@ -42,35 +39,17 @@ export class PharmacyService {
     body: UpdatePharmacyPayload,
     token: string,
   ) {
-    const response = await pharmacyApi.put<ApiResponse<PharmacyDetail>>(
-      `/pharmacy/${id}`,
-      body,
-      getAuthorizedConfig(token),
-    );
-    return response.data;
+    const { data } = await pharmacyApi.put<
+      ApiResponse<Omit<PharmacyDetail, "id">>
+    >(`/pharmacy/${id}`, body, getAuthorizedConfig(token));
+    return data;
   }
 
   static async deletePharmacy(id: number, token: string) {
-    const response = await pharmacyApi.delete<ApiResponse<null>>(
+    const { data } = await pharmacyApi.delete<ApiResponse<null>>(
       `/pharmacy/${id}`,
       getAuthorizedConfig(token),
     );
-    return response.data;
+    return data;
   }
-
-  static async findNearbyPharmacies(query: NearbyPharmaciesQuery) {
-    const response = await pharmacyApi.get<ApiResponse<NearbyPharmacy[]>>(
-      "/pharmacy/nearby",
-      { params: query },
-    );
-    return response.data;
-  }
-
-  // static async deletePermission() {
-  //   const response = await pharmacyApi.delete<ApiResponse<null>>(
-  //     `/pharmacy/${id}/permissions/${permissionId}/delete`,
-  //     getAuthorizedConfig(token),
-  //   );
-  //   return response.data;
-  // }
 }

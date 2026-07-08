@@ -1,7 +1,9 @@
 "use client";
 
+import { createContext, useEffect, useState, ReactNode } from "react";
 import { AuthService } from "@/services/authService";
 import { LoginPayload, RegisterPayload, User } from "@/types/auth";
+import { InviteService } from "@/services/inviteService";
 import {
   getToken,
   getUserToken,
@@ -9,8 +11,6 @@ import {
   login as userLogin,
   logout as userLogout,
 } from "@/app/actions/auth";
-import { createContext, useEffect, useState, ReactNode } from "react";
-import { InviteService } from "@/services/inviteService";
 
 type AuthContextType = {
   user: User;
@@ -21,11 +21,15 @@ type AuthContextType = {
   logout: () => Promise<void>;
 };
 
+type AuthProviderProps = {
+  children: ReactNode;
+};
+
 export const AuthContext = createContext<AuthContextType>(
   {} as AuthContextType,
 );
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User>({} as User);
   const [loading, setLoading] = useState(true);
 
@@ -34,8 +38,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (token) {
       const response = await AuthService.me(token);
-      setUser(response.data as User);
+      setUser(response.data);
     }
+    setLoading(false);
   };
 
   const register = async (body: RegisterPayload) => {
@@ -45,19 +50,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (body: LoginPayload) => {
     const response = await AuthService.loginAccount(body);
 
-    if (!response.data) {
+    const token = response.data;
+
+    if (!token) {
       throw new Error("The backend did not return a valid session token.");
     }
 
-    await userLogin(response.data);
+    await userLogin(token);
 
-    const token = await getToken();
-    if (token) {
+    const accessToken = await getToken();
+    if (accessToken) {
       await InviteService.acceptInvite(
         {
-          token,
+          token: accessToken,
         },
-        response.data,
+        token,
       );
       await removeToken();
     }

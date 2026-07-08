@@ -1,32 +1,37 @@
 "use client";
+
 import { Table } from "@/components/Table";
 import { useMemo, useState } from "react";
 
-type useTableProps<T extends { id: unknown }> = {
+type UseTableProps<T extends TableItem> = {
   initialItens: T[];
   pageSize: number;
   totalItens: number;
   fetch: (page: number) => Promise<T[]>;
 };
 
-export function useTable<T extends { id: unknown }>({
+type TableItem = {
+  id: string | number;
+};
+
+export function useTable<T extends TableItem>({
   initialItens,
   pageSize,
   totalItens,
   fetch,
-}: useTableProps<T>) {
+}: UseTableProps<T>) {
   const [items, setItems] = useState(initialItens);
   const [currentTotalItens, setCurrentTotalItens] = useState(totalItens);
   const [currentPage, setCurrentPage] = useState(1);
-
   const totalPages = Math.max(1, Math.ceil(currentTotalItens / pageSize));
-  const canGoPrevious = currentPage > 1;
-  const canGoNext = currentPage < totalPages;
 
   const currentItens = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
     return items.slice(startIndex, startIndex + pageSize);
   }, [currentPage, items, pageSize]);
+
+  const canGoPrevious = currentPage > 1;
+  const canGoNext = currentPage < totalPages;
 
   const goToPreviousPage = () => {
     if (canGoPrevious) {
@@ -38,8 +43,8 @@ export function useTable<T extends { id: unknown }>({
     if (canGoNext) {
       setCurrentPage((page) => page + 1);
 
-      const shouldFetch = items.length < currentTotalItens;
-      if (shouldFetch) {
+      const shouldFetchMoreItems = items.length < currentTotalItens;
+      if (shouldFetchMoreItems) {
         const nextItems = await fetch(currentPage + 1);
         setItems((pre) => [...pre, ...nextItems]);
       }
@@ -51,7 +56,7 @@ export function useTable<T extends { id: unknown }>({
     setCurrentTotalItens((pre) => pre + 1);
   };
 
-  const editItem = (data: T, id: string) => {
+  const editItem = (data: T, id: string | number) => {
     const newItems = items.filter((item) => {
       if (item.id != id) {
         return item;
@@ -64,13 +69,14 @@ export function useTable<T extends { id: unknown }>({
     setItems(newItems);
   };
 
-  const removeItem = (id: string) => {
+  const removeItem = (id: string | number) => {
     const newItems = items.filter((item) => item.id != id);
     setItems(newItems);
     setCurrentTotalItens((pre) => pre - 1);
 
     const startIndex = (currentPage - 1) * pageSize;
-    if (!newItems[startIndex]) {
+    const shouldGoToPreviousPage = !newItems[startIndex];
+    if (shouldGoToPreviousPage) {
       setCurrentPage((page) => Math.max(1, page - 1));
     }
   };
