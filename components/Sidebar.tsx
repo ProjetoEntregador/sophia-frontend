@@ -1,12 +1,11 @@
 "use client";
 
+import { getUserToken } from "@/app/actions/auth";
+import { AuthService } from "@/services/authService";
+import { UserPharmacyPermission } from "@/types/permission";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-type SidebarProps = {
-  pharmacyId: string;
-  name: string;
-};
+import { useEffect, useState } from "react";
 
 const navigationItems = [
   { label: "Dashboard", href: "", roles: ["OWNER", "EMPLOYEE"] },
@@ -14,10 +13,27 @@ const navigationItems = [
   { label: "Funcionários", href: "/funcionario", roles: ["OWNER"] },
 ];
 
+type SidebarProps = {
+  pharmacyId: string;
+  name: string;
+};
+
 export function Sidebar({ pharmacyId, name }: SidebarProps) {
+  const [permission, setPermission] = useState({} as UserPharmacyPermission);
   const pathname = usePathname();
 
-  const permission = { role: "OWNER" };
+  useEffect(() => {
+    const getData = async () => {
+      const token = await getUserToken();
+      const permission = await AuthService.checkPharmacyPermission(
+        pharmacyId,
+        token,
+      );
+      setPermission(permission.data);
+    };
+
+    getData();
+  }, []);
 
   return (
     <aside className="w-[280px] h-[calc(100vh-112px)] fixed rounded-[1rem] border border-slate-200 bg-white p-5 shadow-[0_18px_60px_rgba(15,23,42,0.06)]">

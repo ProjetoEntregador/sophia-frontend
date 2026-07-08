@@ -2,9 +2,12 @@
 
 import dynamic from "next/dynamic";
 
-const LocationPicker = dynamic(() => import("@/components/LocationPicker"), {
-  ssr: false,
-});
+const LocationPicker = dynamic(
+  () => import("@/components/LocationPicker").then((res) => res.LocationPicker),
+  {
+    ssr: false,
+  },
+);
 
 type ShowLocationProps = {
   latitude: number;

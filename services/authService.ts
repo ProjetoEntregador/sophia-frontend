@@ -6,6 +6,7 @@ import {
   RegisterPayload,
   User,
 } from "@/types/auth";
+import { UserPharmacyPermission } from "@/types/permission";
 
 export class AuthService {
   static async registerAccount(body: RegisterPayload) {
@@ -35,6 +36,14 @@ export class AuthService {
   static async me(token: string) {
     const { data } = await pharmacyApi.get<ApiResponse<User>>(
       "/auth/info",
+      getAuthorizedConfig(token),
+    );
+    return data;
+  }
+
+  static async checkPharmacyPermission(id: string, token: string) {
+    const { data } = await pharmacyApi.get<ApiResponse<UserPharmacyPermission>>(
+      `/pharmacy/${id}/permissions/check`,
       getAuthorizedConfig(token),
     );
     return data;
