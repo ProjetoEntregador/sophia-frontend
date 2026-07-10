@@ -1,6 +1,6 @@
 import { getAuthorizedConfig, pharmacyApi } from "@/lib/api";
 import { ApiList, ApiResponse } from "@/types/api";
-import { AcceptInvitePayload, SendInvitePayload } from "@/types/invite";
+import { AcceptInvitePayload, Invite, SendInvitePayload } from "@/types/invite";
 
 export class InviteService {
   static async sendPharmacyInvite(
@@ -8,29 +8,21 @@ export class InviteService {
     body: SendInvitePayload,
     token: string,
   ) {
-    const response = await pharmacyApi.post<ApiResponse<null>>(
+    const { data } = await pharmacyApi.post<ApiResponse<Invite>>(
       `/invites/pharmacy/${pharmacyId}/send`,
       body,
       getAuthorizedConfig(token),
     );
-    return response.data;
+    return data;
   }
 
   static async acceptInvite(body: AcceptInvitePayload, token: string) {
-    const response = await pharmacyApi.post<ApiResponse<null>>(
+    const { data } = await pharmacyApi.post<ApiResponse<null>>(
       "/invites/accept",
       body,
       getAuthorizedConfig(token),
     );
-    return response.data;
-  }
-
-  static async removeInvite(pharmacyId: number, id: number, token: string) {
-    const response = await pharmacyApi.delete(
-      `/invites/pharmacy/${pharmacyId}/cancel/${id}`,
-      getAuthorizedConfig(token),
-    );
-    return response.data;
+    return data;
   }
 
   static async listInvites(
@@ -39,11 +31,18 @@ export class InviteService {
     size: number,
     offset: number,
   ) {
-    const response = await pharmacyApi.get<ApiResponse<ApiList<any>>>(
+    const { data } = await pharmacyApi.get<ApiResponse<ApiList<Invite>>>(
       `/invites/pharmacy/${id}/list?offset=${offset}&size=${size}`,
       getAuthorizedConfig(token),
     );
+    return data;
+  }
 
-    return response.data;
+  static async removeInvite(pharmacyId: number, id: number, token: string) {
+    const { data } = await pharmacyApi.delete<ApiResponse<null>>(
+      `/invites/pharmacy/${pharmacyId}/cancel/${id}`,
+      getAuthorizedConfig(token),
+    );
+    return data;
   }
 }

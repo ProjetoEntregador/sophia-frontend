@@ -13,10 +13,11 @@ import {
 import { getErrorMessage } from "@/lib/api";
 import { InviteService } from "@/services/inviteService";
 import { getUserToken } from "@/app/actions/auth";
+import { Invite } from "@/types/invite";
 
 type UserInviteFormProps = {
   onCancel: () => void;
-  onSave: (data: any) => void;
+  onSave: (data: Invite) => void;
 };
 
 export function UserInviteForm({ onCancel, onSave }: UserInviteFormProps) {
@@ -48,12 +49,9 @@ export function UserInviteForm({ onCancel, onSave }: UserInviteFormProps) {
 
       const invite = await InviteService.sendPharmacyInvite(
         Number(params.pharmacyId),
-        {
-          email: values.email.trim(),
-        },
+        { email: values.email.trim() },
         token,
       );
-      console.log(invite);
       onSave(invite.data);
       handleClose();
     } catch (error) {

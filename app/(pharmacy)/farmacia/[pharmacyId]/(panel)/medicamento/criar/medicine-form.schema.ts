@@ -17,7 +17,11 @@ export const medicineFormSchema = z.object({
     .max(300, "A descrição deve ter menos de 300 caracteres.")
     .optional()
     .or(z.literal("")),
-  stripe: z.string().trim().max(50, "A tarja deve ter menos de 50 caracteres."),
+  stripe: z
+    .string()
+    .trim()
+    .max(50, "A tarja deve ter menos de 50 caracteres.")
+    .optional(),
   unitPrice: z
     .string()
     .trim()

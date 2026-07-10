@@ -13,9 +13,12 @@ import { getErrorMessage } from "@/lib/api";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
-const LocationPicker = dynamic(() => import("@/components/LocationPicker"), {
-  ssr: false,
-});
+const LocationPicker = dynamic(
+  () => import("@/components/LocationPicker").then((res) => res.LocationPicker),
+  {
+    ssr: false,
+  },
+);
 
 export default function EditPharmacyPage() {
   const router = useRouter();

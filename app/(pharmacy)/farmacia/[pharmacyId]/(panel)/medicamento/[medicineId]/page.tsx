@@ -10,7 +10,6 @@ export default async function MedicinePage({ params }: MedicinePageProps) {
   const { medicineId } = await params;
 
   const token = await getUserToken();
-
   const [medicine, batches] = await Promise.all([
     MedicationService.getMedicationById(medicineId, token),
     MedicationService.listMedicationBatchesByMedicationId(

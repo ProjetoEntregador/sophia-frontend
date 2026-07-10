@@ -1,5 +1,3 @@
-import { Medication } from "./medicine";
-
 export type PharmacyMembership = {
   id: string;
   name: string;
@@ -33,21 +31,3 @@ export type CreatePharmacyPayload = {
 };
 
 export type UpdatePharmacyPayload = Partial<CreatePharmacyPayload>;
-
-export type NearbyMedication = Omit<Medication, "pharmacyId">;
-
-export type NearbyPharmacy = {
-  id: number;
-  name: string;
-  phone: string;
-  address: string;
-  city: string;
-  distanceKm: number;
-  medications: NearbyMedication[];
-};
-
-export type NearbyPharmaciesQuery = {
-  latitude: number;
-  longitude: number;
-  radiusKm: number;
-};

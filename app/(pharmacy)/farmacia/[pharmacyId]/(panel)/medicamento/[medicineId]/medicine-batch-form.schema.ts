@@ -5,19 +5,19 @@ export const medicineBatchFormSchema = z
     code: z
       .string()
       .trim()
-      .min(1, "Enter the batch code.")
-      .max(40, "Batch code must have at most 40 characters."),
+      .min(1, "Preencha o código do lote.")
+      .max(40, "Código do lote deve ter no máximo 40 caracteres."),
     quantity: z
       .string()
       .trim()
-      .min(1, "Enter the batch quantity.")
+      .min(1, "Preencha a quantidade de unidades no lote.")
       .refine((value) => /^\d+$/.test(value) && Number(value) > 0, {
-        message: "Enter a whole number greater than zero.",
+        message: "Valor deve ser um inteiro maior que zero.",
       }),
-    expiresOn: z.string().min(1, "Enter the expiration date."),
+    expiresOn: z.string().min(1, "Preencha a data de expiração."),
   })
   .refine(({ expiresOn }) => Number.isFinite(Date.parse(expiresOn)), {
-    message: "Expiration date must be a valid date.",
+    message: "Data de expiração inválida.",
     path: ["expiresOn"],
   });
 

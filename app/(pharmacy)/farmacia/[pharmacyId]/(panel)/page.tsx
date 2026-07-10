@@ -2,8 +2,7 @@ import { getUserToken } from "@/app/actions/auth";
 import { PharmacyService } from "@/services/pharmacyService";
 import { notFound } from "next/navigation";
 import { ShowLocation } from "./show-location";
-import Link from "next/link";
-import { PharmacyRemoveClient } from "./pharmacy-remove-client";
+import { PharmacyClient } from "./pharmacy-client";
 
 type PharmacyOverviewPageProps = {
   params: Promise<{ pharmacyId: string }>;
@@ -16,11 +15,8 @@ export default async function PharmacyOverviewPage({
   const id = Number.parseInt(pharmacyId, 10);
 
   const token = await getUserToken();
-
-  const [pharmacyResponse] = await Promise.all([
-    PharmacyService.getPharmacyById(id, token),
-  ]);
-  const pharmacy = pharmacyResponse.data;
+  const response = await PharmacyService.getPharmacyById(id, token);
+  const pharmacy = response.data;
 
   if (!pharmacy) {
     notFound();
@@ -71,15 +67,7 @@ export default async function PharmacyOverviewPage({
             </div>
           </div>
 
-          <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <PharmacyRemoveClient pharmacyId={id} />
-            <Link
-              href={`/farmacia/${pharmacy.id}/editar`}
-              className="inline-flex items-center justify-center rounded-lg bg-purple-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-purple-500"
-            >
-              Editar
-            </Link>
-          </div>
+          <PharmacyClient pharmacyId={id} />
         </article>
       </section>
     </div>

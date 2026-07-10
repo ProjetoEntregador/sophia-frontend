@@ -6,7 +6,7 @@ export type AuthorizedRequestConfig = {
 
 export type ApiResponse<T> = {
   status: string;
-  data: T | null;
+  data: T;
   message: string;
 };
 
@@ -16,4 +16,14 @@ export type ApiList<T> = {
   totalPages: number;
   size: number;
   page: number;
+};
+
+export type ItemsPaginatedApiResponse<T> = {
+  items: T[];
+  total: number;
+};
+
+export type DataPaginatedApiResponse<T> = {
+  data: T[];
+  total: number;
 };

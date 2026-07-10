@@ -13,6 +13,10 @@ import { getErrorMessage } from "@/lib/api";
 import { GoogleLogin } from "@react-oauth/google";
 import { AuthService } from "@/services/authService";
 
+type CredentialResponse = {
+  credential?: string;
+};
+
 export default function LoginForm() {
   const auth = useAuth();
   const router = useRouter();
@@ -59,15 +63,16 @@ export default function LoginForm() {
     }
   });
 
-  async function handleLogin(credentialResponse: any) {
+  async function handleLogin(credentialResponse: CredentialResponse) {
     const token = credentialResponse.credential;
 
-    const res = await AuthService.loginGoogle({
-      idToken: token,
-    });
-
-    await auth.loginGoogle(res.data as string);
-    router.push("/");
+    if (!token) {
+      setSubmitError("Erro ao realizar login com Google.");
+    } else {
+      const res = await AuthService.loginGoogle({ idToken: token });
+      await auth.loginGoogle(res.data);
+      router.push("/");
+    }
   }
 
   return (
@@ -129,12 +134,6 @@ export default function LoginForm() {
             <div className="h-px flex-1 bg-slate-200" />
           </div>
 
-          {/* <button
-            type="button"
-            className="cursor-pointer inline-flex w-full items-center justify-center rounded-lg border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
-          >
-            Entrar com o Google
-          </button> */}
           <GoogleLogin onSuccess={handleLogin} onError={() => {}} />
 
           <p className="mt-6 text-center text-sm text-slate-600">

@@ -15,10 +15,6 @@ export default async function PharmacyWorkspaceLayout({
   const { pharmacyId } = await params;
   const id = Number.parseInt(pharmacyId, 10);
 
-  if (!Number.isInteger(id)) {
-    notFound();
-  }
-
   const token = await getUserToken();
   const response = await PharmacyService.getPharmacyById(id, token);
   const pharmacy = response.data;

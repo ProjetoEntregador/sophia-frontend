@@ -1,5 +1,9 @@
 import { getAuthorizedConfig, medicineApi } from "@/lib/api";
 import {
+  DataPaginatedApiResponse,
+  ItemsPaginatedApiResponse,
+} from "@/types/api";
+import {
   CreateMedicationBatchPayload,
   CreateMedicationPayload,
   Medication,
@@ -10,25 +14,20 @@ import {
 
 export class MedicationService {
   static async createMedication(body: CreateMedicationPayload, token: string) {
-    const response = await medicineApi.post<Medication>(
+    const { data } = await medicineApi.post<Medication>(
       "/medications",
       body,
       getAuthorizedConfig(token),
     );
-    return response.data;
-  }
-
-  static async listMedications() {
-    const response = await medicineApi.get<Medication[]>("/medications");
-    return response.data;
+    return data;
   }
 
   static async getMedicationById(id: string, token: string) {
-    const response = await medicineApi.get<Medication>(
+    const { data } = await medicineApi.get<Medication>(
       `/medications/${id}`,
       getAuthorizedConfig(token),
     );
-    return response.data;
+    return data;
   }
 
   static async listMedicationsByPharmacyId(
@@ -37,14 +36,16 @@ export class MedicationService {
     size: number,
     token: string,
   ) {
-    const response = await medicineApi.get<Medication[]>(
+    const { data } = await medicineApi.get<
+      ItemsPaginatedApiResponse<Medication>
+    >(
       `/medications/pharmacy/${pharmacyId}?offset=${offset}&size=${size}`,
       getAuthorizedConfig(token),
     );
 
     return {
-      data: response.data.items as Medication[],
-      total: response.data.total as number,
+      data: data.items,
+      total: data.total,
       offset: offset,
       size: size,
     };
@@ -55,46 +56,39 @@ export class MedicationService {
     body: UpdateMedicationPayload,
     token: string,
   ) {
-    const response = await medicineApi.patch<Medication>(
+    const { data } = await medicineApi.patch<Medication>(
       `/medications/${id}`,
       body,
       getAuthorizedConfig(token),
     );
-    return response.data;
+    return data;
   }
 
   static async deleteMedication(id: string, token: string) {
-    const response = await medicineApi.delete(
+    const { data } = await medicineApi.delete<null>(
       `/medications/${id}`,
       getAuthorizedConfig(token),
     );
-    return response.data as undefined;
+    return data;
   }
 
   static async createMedicationBatch(
     body: CreateMedicationBatchPayload,
     token: string,
   ) {
-    const response = await medicineApi.post<MedicationBatch>(
+    const { data } = await medicineApi.post<MedicationBatch>(
       "/medication-batches",
       body,
       getAuthorizedConfig(token),
     );
-    return response.data;
-  }
-
-  static async listMedicationBatches() {
-    const response = await medicineApi.get<MedicationBatch[]>(
-      "/medication-batches",
-    );
-    return response.data;
+    return data;
   }
 
   static async getMedicationBatchById(id: string) {
-    const response = await medicineApi.get<MedicationBatch>(
+    const { data } = await medicineApi.get<MedicationBatch>(
       `/medication-batches/${id}`,
     );
-    return response.data;
+    return data;
   }
 
   static async listMedicationBatchesByMedicationId(
@@ -103,15 +97,17 @@ export class MedicationService {
     offset: number,
     size: number,
   ) {
-    const response = await medicineApi.get(
+    const { data } = await medicineApi.get<
+      DataPaginatedApiResponse<MedicationBatch>
+    >(
       `/medication-batches/medication/${medicationId}?offset=${offset}&size=${size}`,
       getAuthorizedConfig(token),
     );
     return {
-      data: response.data.data as MedicationBatch[],
-      total: response.data.total as number,
-      offset: response.data.offset as number,
-      size: response.data.size as number,
+      data: data.data,
+      total: data.total,
+      offset: offset,
+      size: size,
     };
   }
 
@@ -120,19 +116,19 @@ export class MedicationService {
     body: UpdateMedicationBatchPayload,
     token: string,
   ) {
-    const response = await medicineApi.patch<MedicationBatch>(
+    const { data } = await medicineApi.patch<MedicationBatch>(
       `/medication-batches/${id}`,
       body,
       getAuthorizedConfig(token),
     );
-    return response.data;
+    return data;
   }
 
   static async deleteMedicationBatch(id: string, token: string) {
-    const response = await medicineApi.delete(
+    const { data } = await medicineApi.delete<null>(
       `/medication-batches/${id}`,
       getAuthorizedConfig(token),
     );
-    return response.data as undefined;
+    return data;
   }
 }

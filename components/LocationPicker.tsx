@@ -9,11 +9,7 @@ type LocationPickerProps = {
   onChange: (lat: number, lng: number) => void;
 };
 
-export default function LocationPicker({
-  lat,
-  lng,
-  onChange,
-}: LocationPickerProps) {
+export function LocationPicker({ lat, lng, onChange }: LocationPickerProps) {
   return (
     <MapContainer
       center={[lat, lng]}
@@ -21,8 +17,7 @@ export default function LocationPicker({
       style={{ height: "400px", width: "100%" }}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-
-      <LocationMarker position={[lat, lng]} onChange={onChange} />
+      <LocationMarker lat={lat} lng={lng} onChange={onChange} />
     </MapContainer>
   );
 }
@@ -35,11 +30,12 @@ const markerIcon = new L.Icon({
 });
 
 type LocationMarkerProps = {
-  position: [number, number];
+  lat: number;
+  lng: number;
   onChange: (lat: number, lng: number) => void;
 };
 
-function LocationMarker({ position, onChange }: LocationMarkerProps) {
+function LocationMarker({ lat, lng, onChange }: LocationMarkerProps) {
   useMapEvents({
     click(e) {
       onChange(e.latlng.lat, e.latlng.lng);
@@ -48,7 +44,7 @@ function LocationMarker({ position, onChange }: LocationMarkerProps) {
 
   return (
     <Marker
-      position={position}
+      position={[lat, lng]}
       icon={markerIcon}
       draggable
       eventHandlers={{

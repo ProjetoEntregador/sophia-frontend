@@ -42,4 +42,5 @@ export type CreateMedicationBatchPayload = {
   expirationDate: string;
 };
 
-export type UpdateMedicationBatchPayload = Partial<CreateMedicationBatchPayload>;
+export type UpdateMedicationBatchPayload =
+  Partial<CreateMedicationBatchPayload>;

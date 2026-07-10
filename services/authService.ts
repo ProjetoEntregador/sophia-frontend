@@ -4,39 +4,48 @@ import {
   GoogleLoginPayload,
   LoginPayload,
   RegisterPayload,
-  User
+  User,
 } from "@/types/auth";
+import { UserPharmacyPermission } from "@/types/permission";
 
 export class AuthService {
   static async registerAccount(body: RegisterPayload) {
-    const response = await pharmacyApi.post<ApiResponse<null>>(
+    const { data } = await pharmacyApi.post<ApiResponse<null>>(
       "/auth/registration",
       body,
     );
-    return response.data;
+    return data;
   }
 
   static async loginAccount(body: LoginPayload) {
-    const response = await pharmacyApi.post<ApiResponse<string>>(
+    const { data } = await pharmacyApi.post<ApiResponse<string>>(
       "/auth/login",
       body,
     );
-    return response.data;
+    return data;
   }
 
   static async loginGoogle(body: GoogleLoginPayload) {
-    const response = await pharmacyApi.post<ApiResponse<string>>(
+    const { data } = await pharmacyApi.post<ApiResponse<string>>(
       "/auth/google",
       body,
     );
-    return response.data;
+    return data;
   }
 
   static async me(token: string) {
-    const response = await pharmacyApi.get<ApiResponse<User>>(
+    const { data } = await pharmacyApi.get<ApiResponse<User>>(
       "/auth/info",
       getAuthorizedConfig(token),
     );
-    return response.data;
+    return data;
+  }
+
+  static async checkPharmacyPermission(id: string, token: string) {
+    const { data } = await pharmacyApi.get<ApiResponse<UserPharmacyPermission>>(
+      `/pharmacy/${id}/permissions/check`,
+      getAuthorizedConfig(token),
+    );
+    return data;
   }
 }
