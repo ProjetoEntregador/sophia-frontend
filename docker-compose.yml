@@ -6,3 +6,10 @@ services:
     container_name: sophia-frontend
     ports:
       - 3004:3000
+    networks:
+      - net1
+
+networks:
+  net1:
+    external: true
+    name: net1
