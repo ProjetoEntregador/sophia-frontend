@@ -5,4 +5,4 @@ services:
       dockerfile: compose/next/Dockerfile
     container_name: sophia-frontend
     ports:
-      - 3000:3000
+      - 3004:3000
