@@ -1,12 +1,18 @@
 import { AuthorizedRequestConfig } from "@/types/api";
 import axios from "axios";
 
+const isServer = typeof window === "undefined";
+
 export const pharmacyApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_PHARMACY_API_BASE_URL ?? "",
+  baseURL: isServer
+    ? process.env.PHARMACY_API_URL
+    : process.env.NEXT_PUBLIC_PHARMACY_API_BASE_URL,
 });
 
 export const medicineApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_MEDICINE_API_BASE_URL ?? "",
+  baseURL: isServer
+    ? process.env.MEDICINE_API_URL
+    : process.env.NEXT_PUBLIC_MEDICINE_API_BASE_URL,
 });
 
 export function getAuthorizedConfig(token: string): AuthorizedRequestConfig {
