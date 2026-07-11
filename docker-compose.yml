@@ -5,4 +5,11 @@ services:
       dockerfile: compose/next/Dockerfile
     container_name: sophia-frontend
     ports:
-      - 3000:3000
+      - 3004:3000
+    networks:
+      - net1
+
+networks:
+  net1:
+    external: true
+    name: net1
