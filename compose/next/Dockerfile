@@ -17,7 +17,7 @@ WORKDIR /app
 COPY --from=dependences /app/node_modules ./node_modules
 COPY . .
 
-RUN yarn build
+RUN mkdir -p public && yarn build
 
 FROM base AS production
 WORKDIR /app
