@@ -101,7 +101,7 @@ export function BatchItem({
             await MedicationService.updateMedicationBatch(
               initialBatch.id,
               {
-                batchCode: batchData.batchCode,
+                batchNumber: batchData.batchCode,
                 expirationDate: batchData.expirationDate,
                 medicationId: batchData.medicationId,
                 quantity: batchData.quantity,

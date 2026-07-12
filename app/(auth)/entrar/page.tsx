@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormValues } from "./login.schema";
@@ -17,7 +17,7 @@ type CredentialResponse = {
   credential?: string;
 };
 
-export default function LoginForm() {
+function LoginForm() {
   const auth = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -148,5 +148,13 @@ export default function LoginForm() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }
