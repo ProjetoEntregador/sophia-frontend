@@ -1,28 +1,47 @@
 import { getAuthorizedConfig, pharmacyApi } from "@/lib/api";
 import { ApiList, ApiResponse } from "@/types/api";
 import {
-  CreatePharmacyPayload, PharmacyDetail,
+  CreatePharmacyPayload,
+  PharmacyDetail,
   PharmacyListItem,
-  UpdatePharmacyPayload
+  UpdatePharmacyPayload,
 } from "@/types/pharmacy";
 
 export class PharmacyService {
   static async listPharmacies(offset: number, size: number, token: string) {
-    const { data } = await pharmacyApi.get<
-      ApiResponse<ApiList<PharmacyListItem>>
-    >(
-      `/pharmacy/list?offset=${offset}&size=${size}`,
-      getAuthorizedConfig(token),
-    );
-    return data;
+    try {
+      const { data } = await pharmacyApi.get<
+        ApiResponse<ApiList<PharmacyListItem>>
+      >(
+        `/pharmacy/list?offset=${offset}&size=${size}`,
+        getAuthorizedConfig(token),
+      );
+      return data;
+    } catch (err) {
+      return {
+        data: {
+          content: [],
+          totalElements: 0,
+          page: 0,
+          size: 0,
+          totalPages: 0,
+        },
+        status: "404",
+        message: "Erro",
+      } as ApiResponse<ApiList<PharmacyListItem>>;
+    }
   }
 
   static async getPharmacyById(id: number, token: string) {
-    const { data } = await pharmacyApi.get<ApiResponse<PharmacyDetail>>(
-      `/pharmacy/${id}`,
-      getAuthorizedConfig(token),
-    );
-    return data;
+    try {
+      const { data } = await pharmacyApi.get<ApiResponse<PharmacyDetail>>(
+        `/pharmacy/${id}`,
+        getAuthorizedConfig(token),
+      );
+      return data;
+    } catch (err) {
+      return {} as ApiResponse<PharmacyDetail>;
+    }
   }
 
   static async createPharmacy(body: CreatePharmacyPayload, token: string) {

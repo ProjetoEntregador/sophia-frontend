@@ -23,11 +23,15 @@ export class MedicationService {
   }
 
   static async getMedicationById(id: string, token: string) {
-    const { data } = await medicineApi.get<Medication>(
-      `/medications/${id}`,
-      getAuthorizedConfig(token),
-    );
-    return data;
+    try {
+      const { data } = await medicineApi.get<Medication>(
+        `/medications/${id}`,
+        getAuthorizedConfig(token),
+      );
+      return data;
+    } catch (err) {
+      return {} as Medication;
+    }
   }
 
   static async listMedicationsByPharmacyId(
@@ -36,19 +40,28 @@ export class MedicationService {
     size: number,
     token: string,
   ) {
-    const { data } = await medicineApi.get<
-      ItemsPaginatedApiResponse<Medication>
-    >(
-      `/medications/pharmacy/${pharmacyId}?offset=${offset}&size=${size}`,
-      getAuthorizedConfig(token),
-    );
+    try {
+      const { data } = await medicineApi.get<
+        ItemsPaginatedApiResponse<Medication>
+      >(
+        `/medications/pharmacy/${pharmacyId}?offset=${offset}&size=${size}`,
+        getAuthorizedConfig(token),
+      );
 
-    return {
-      data: data.items,
-      total: data.total,
-      offset: offset,
-      size: size,
-    };
+      return {
+        data: data.items,
+        total: data.total,
+        offset: offset,
+        size: size,
+      };
+    } catch (err) {
+      return {
+        data: [],
+        total: 0,
+        offset: offset,
+        size: size,
+      };
+    }
   }
 
   static async updateMedication(
@@ -97,18 +110,27 @@ export class MedicationService {
     offset: number,
     size: number,
   ) {
-    const { data } = await medicineApi.get<
-      DataPaginatedApiResponse<MedicationBatch>
-    >(
-      `/medication-batches/medication/${medicationId}?offset=${offset}&size=${size}`,
-      getAuthorizedConfig(token),
-    );
-    return {
-      data: data.data,
-      total: data.total,
-      offset: offset,
-      size: size,
-    };
+    try {
+      const { data } = await medicineApi.get<
+        DataPaginatedApiResponse<MedicationBatch>
+      >(
+        `/medication-batches/medication/${medicationId}?offset=${offset}&size=${size}`,
+        getAuthorizedConfig(token),
+      );
+      return {
+        data: data.data,
+        total: data.total,
+        offset: offset,
+        size: size,
+      };
+    } catch (err) {
+      return {
+        data: [],
+        total: 0,
+        offset: offset,
+        size: size,
+      };
+    }
   }
 
   static async updateMedicationBatch(
