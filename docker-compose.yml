@@ -1,0 +1,17 @@
+services:
+  sophia-frontend:
+    build:
+      context: .
+      dockerfile: compose/next/Dockerfile
+    container_name: sophia-frontend
+    ports:
+      - 3004:3000
+    env_file:
+      - .env
+    networks:
+      - net1
+
+networks:
+  net1:
+    external: true
+    name: net1
